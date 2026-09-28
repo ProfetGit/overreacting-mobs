@@ -1,0 +1,22 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "All Rights Reserved"
+
+[[mods]]
+modId = "mobreactions"
+version = "${version}"
+displayName = "${name}"
+authors = "${author}"
+displayURL = "${homepage}"
+description = '''${description}'''
+displayTest = "IGNORE_ALL_VERSION"
+
+[[mixins]]
+config = "mobreactions.mixins.json"
+
+[[dependencies.mobreactions]]
+modId = "minecraft"
+type = "required"
+versionRange = "[${mc},${mc_next})"
+ordering = "NONE"
+side = "CLIENT"

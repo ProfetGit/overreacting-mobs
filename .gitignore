@@ -1,0 +1,33 @@
+.gradle/
+build/
+versions/*/build/
+versions/*/run/
+dist/
+*.hprof
+.idea/
+*.iml
+__pycache__/
+# Mojang textures extracted from the local jar (dev/anim/textures.py) and everything derived from them
+dev/anim/textures/
+dev/anim/hits/frames/
+dev/demo/.work/
+dev/demo/build/
+dev/demo/mrdemo.jar
+dev/demo/out/
+# icon renders and review sheets (regenerate with dev/make_icon.py, dev/make_banner.py, dev/icon/preview_sheet.py)
+dev/icon/frames/
+dev/icon/banner_frames/
+dev/icon/preview/
+dev/icon/review/
+dev/icon/contact*.png
+dev/icon/bg_options.png
+# release art: Modrinth icon, banner (docs/banner.gif is the committed copy)
+dev/icon/out/
+# Blockbench authoring renders and projects (they embed the Mojang-derived textures); only the clip references ship
+dev/anim/*.bbmodel
+dev/anim/*/*
+!dev/anim/*/reference/
+dev/demo/world*/
+# local snapshots and session notes
+.work/
+dev/*-session.md

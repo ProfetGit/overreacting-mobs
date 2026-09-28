@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "mobreactions",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "${description}",
+  "authors": ["${author}"],
+  "contact": { "homepage": "${homepage}" },
+  "license": "LicenseRef-All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["io.github.profetgit.mobreactions.platform.fabric.FabricEntry"]
+  },
+  "mixins": ["mobreactions.mixins.json"],
+  "depends": {
+    "fabricloader": ">=${fabric_loader}",
+    "minecraft": "~${mc}",
+    "java": ">=25"
+  }
+}

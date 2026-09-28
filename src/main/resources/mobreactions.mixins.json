@@ -1,0 +1,42 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.github.profetgit.mobreactions.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ClientLevelMixin",
+    "AdultFelineModelMixin",
+    "BabyFelineModelMixin",
+    "CarriedBlockLayerMixin",
+    "CreeperModelMixin",
+    "EndermanModelMixin",
+    "EntityRendererMixin",
+    "EyesLayerMixin",
+    "FoxModelMixin",
+    "GoatModelMixin",
+    "HumanoidModelMixin",
+    "IllagerModelMixin",
+    "IronGolemModelMixin",
+    "LivingEntityMixin",
+    "LivingEntityRenderStateMixin",
+    "LivingEntityRendererMixin",
+    "MinecraftMixin",
+    "ModelPartAccessor",
+    "MultiPlayerGameModeMixin",
+    "PandaModelMixin",
+    "ParticleEngineMixin",
+    "PolarBearModelMixin",
+    "QuadrupedModelMixin",
+    "RenderLayerMixin",
+    "SheepFurModelMixin",
+    "SheepModelMixin",
+    "SpiderModelMixin",
+    "TextureManagerMixin",
+    "VillagerModelMixin",
+    "WitchModelMixin",
+    "WolfModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

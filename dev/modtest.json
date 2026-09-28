@@ -1,0 +1,57 @@
+{
+  "id": "mobreactions",
+  "user": "ReactCam",
+  "out_prop": "mobreactions.demo",
+  "scenes_prop": "mobreactions.demo.scenes",
+  "props": {
+    "mobreactions.demo.frames": "false",
+    "mobreactions.demo.mob": "{mob}",
+    "mobreactions.demo.baby": "{baby}",
+    "mobreactions.demo.cam": "{cam}",
+    "mobreactions.demo.calm": "{calm}",
+    "mobreactions.demo.powered": "{powered}",
+    "mobreactions.demo.carry": "{carry}",
+    "mobreactions.demo.campos": "{campos}",
+    "mobreactions.clips": "{clips}",
+    "mobreactions.fx": "{fx}",
+    "modtest.tickrate": "{tickrate}"
+  },
+  "defaults": {"mob": "zombie", "baby": "", "cam": "side", "calm": "", "powered": "", "carry": "", "campos": "", "clips": "", "fx": "", "tickrate": ""},
+  "world": "dev/demo/.work/world-{mc}",
+  "world_fallback": "dev/demo/.work/world",
+  "options": {"fps": 120, "volume": 0.0, "render_distance": 6},
+  "log_errors": "Mob Reactions: .*(failed|cannot)",
+  "scenes": ["front", "light", "crit", "launch", "side_r", "side_l", "back", "combo", "death_front", "death_crit", "death_launch",
+             "death_side_r", "death_side_l", "death_back", "death_twist", "death_heavy", "death_fire", "death_fall", "death_wall"],
+  "smoke": ["front", "side_l", "death_front", "death_fire"],
+  "addons": {
+    "fa": {"profile": {"26.2": "DH 26.2", "26.3": "Fabric 26.3"},
+           "mods": ["entity_model_features-*.jar", "entity_texture_features-*.jar"],
+           "packs": ["FreshAnimations_*.zip"]}
+  },
+  "tiers": {
+    "quick": {
+      "unit": [":26.3-fabric:test"],
+      "jobs": [{"mc": "26.3", "loader": "fabric", "scenes": "smoke"}]
+    },
+    "full": {
+      "unit": [":26.3-fabric:test"],
+      "jobs": [
+        {"mc": "26.3", "loader": "fabric", "scenes": "all", "vars": {"mob": ["zombie", "vindicator", "cow", "spider", "creeper", "enderman", "wolf", "fox", "cat"]}},
+        {"mc": "26.3", "loader": "fabric", "scenes": "all", "vars": {"mob": "zombie", "baby": "1"}},
+        {"mc": "26.2", "loader": "fabric", "scenes": "all"},
+        {"mc": "26.3", "loader": "fabric", "scenes": "all", "addons": ["fa"]},
+        {"mc": ["26.3", "26.2"], "loader": ["neoforge", "forge"], "scenes": "smoke"}
+      ]
+    },
+    "release": {
+      "unit": ["test"],
+      "jobs": [
+        {"mc": ["26.3", "26.2"], "loader": "fabric", "scenes": "all", "vars": {"mob": ["zombie", "vindicator", "cow", "spider", "creeper", "enderman", "wolf", "fox", "cat"]}},
+        {"mc": ["26.3", "26.2"], "loader": "fabric", "scenes": "all", "vars": {"mob": ["zombie", "cow", "wolf", "ocelot"], "baby": "1"}},
+        {"mc": ["26.3", "26.2"], "loader": ["neoforge", "forge"], "scenes": "all", "vars": {"mob": ["zombie", "cow", "enderman", "wolf"]}},
+        {"mc": ["26.3", "26.2"], "loader": "fabric", "scenes": "all", "addons": ["fa"], "vars": {"mob": ["zombie", "vindicator", "cow", "spider", "creeper", "enderman", "wolf", "fox", "cat"]}}
+      ]
+    }
+  }
+}

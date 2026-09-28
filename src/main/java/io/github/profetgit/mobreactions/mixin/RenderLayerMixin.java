@@ -1,0 +1,22 @@
+package io.github.profetgit.mobreactions.mixin;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.profetgit.mobreactions.face.Faces;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.resources.Identifier;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+
+/** Layers drawn over the model with its own UVs (the drowned's outer layer, the stray's and the bogged's clothing) carry the expression too (see Faces.layer). */
+@Mixin(RenderLayer.class)
+public abstract class RenderLayerMixin {
+    @ModifyVariable(method = "coloredCutoutModelCopyLayerRender", at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    private static Identifier mobreactions$faceLayer(Identifier texture, Model<?> model, Identifier same, PoseStack poseStack, SubmitNodeCollector collector,
+                                                     int light, LivingEntityRenderState state, int color, int order) {
+        return Faces.layer(state, texture);
+    }
+}
