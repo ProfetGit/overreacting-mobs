@@ -11,10 +11,10 @@
 <img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/vindicator.gif" alt="One hit sends a vindicator flying" width="49%">
 <img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/zombie.gif" alt="A crit kills a zombie: it flies back and hits the dirt" width="49%">
 <img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/cow.gif" alt="A cow's death: it rolls onto its side, legs stiff" width="49%">
-<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/spider.gif" alt="A crit flips a spider onto its back, legs curling up" width="49%">
-<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/enderman.gif" alt="An enderman topples stiff and falls flat" width="49%">
+<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/polar_bear.gif" alt="A polar bear knocked back on the frozen river" width="49%">
+<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/sheep.gif" alt="A sheep's death: it flops over" width="49%">
 <img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/creeper.gif" alt="A creeper tips over like a plank" width="49%">
-<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/piglin_brute.gif" alt="A piglin brute knocked off its feet in the Nether" width="49%">
+<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/skeleton.gif" alt="A skeleton stumbles back" width="49%">
 <img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/witch.gif" alt="A witch takes a tumble" width="49%">
 </p>
 
