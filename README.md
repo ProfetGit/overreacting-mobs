@@ -7,6 +7,17 @@
 
 **One hit, big drama.** Mobs react to every hit with weighty, cartoony animations: they freeze in a white flash, fly back with their arms flung out, land in a stumble and shake it off. Kills get their own dramatic deaths. Client-side only, for Fabric, NeoForge and Forge on Minecraft 26.2 and 26.3.
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/vindicator.gif" alt="One hit sends a vindicator flying" width="49%">
+<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/zombie.gif" alt="A crit kills a zombie: it flies back and hits the dirt" width="49%">
+<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/cow.gif" alt="A cow's death: it rolls onto its side, legs stiff" width="49%">
+<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/spider.gif" alt="A crit flips a spider onto its back, legs curling up" width="49%">
+<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/enderman.gif" alt="An enderman topples stiff and falls flat" width="49%">
+<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/creeper.gif" alt="A creeper tips over like a plank" width="49%">
+<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/piglin_brute.gif" alt="A piglin brute knocked off its feet in the Nether" width="49%">
+<img src="https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/clips/witch.gif" alt="A witch takes a tumble" width="49%">
+</p>
+
 ![Features](https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/desc/title-features.png)
 
 - **Hit reactions** for front, side and back hits, each with an impact freeze, a flight and a landing. Crits and sprint hits send mobs flying further.
@@ -22,7 +33,7 @@
 - **Villagers and illagers**: villager, wandering trader, witch, vindicator, pillager, evoker, illusioner
 - **Animals**: cow, mooshroom, pig, sheep, goat, panda, polar bear
 - **Pets**: wolf, fox, cat, ocelot
-- **Others**: spider, cave spider, creeper, enderman
+- **Others**: spider, cave spider, creeper, enderman, iron golem
 - The babies of all of these
 
 Other mobs keep their vanilla animations. More body types are on the way.
