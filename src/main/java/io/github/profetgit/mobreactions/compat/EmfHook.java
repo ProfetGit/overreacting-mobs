@@ -24,8 +24,8 @@ final class EmfHook extends EMFAnimationApi.EMFAnimationHook {
 
     @Override
     public void onAnimationEnd(AnimationContext context, boolean wasCancelledByHook) {
-        Emf.animating(null);
         Object root = context.animatingModelRoot();
         if (root instanceof ModelPart part) Emf.animated(part);
+        Emf.animating(null);
     }
 }

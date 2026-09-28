@@ -37,7 +37,7 @@
     "full": {
       "unit": [":26.3-fabric:test"],
       "jobs": [
-        {"mc": "26.3", "loader": "fabric", "scenes": "all", "vars": {"mob": ["zombie", "vindicator", "cow", "spider", "creeper", "enderman", "wolf", "fox", "cat"]}},
+        {"mc": "26.3", "loader": "fabric", "scenes": "all", "vars": {"mob": ["zombie", "vindicator", "cow", "spider", "creeper", "enderman", "wolf", "fox", "cat", "iron_golem"]}},
         {"mc": "26.3", "loader": "fabric", "scenes": "all", "vars": {"mob": "zombie", "baby": "1"}},
         {"mc": "26.2", "loader": "fabric", "scenes": "all"},
         {"mc": "26.3", "loader": "fabric", "scenes": "all", "addons": ["fa"]},
@@ -47,10 +47,10 @@
     "release": {
       "unit": ["test"],
       "jobs": [
-        {"mc": ["26.3", "26.2"], "loader": "fabric", "scenes": "all", "vars": {"mob": ["zombie", "vindicator", "cow", "spider", "creeper", "enderman", "wolf", "fox", "cat"]}},
+        {"mc": ["26.3", "26.2"], "loader": "fabric", "scenes": "all", "vars": {"mob": ["zombie", "vindicator", "cow", "spider", "creeper", "enderman", "wolf", "fox", "cat", "iron_golem"]}},
         {"mc": ["26.3", "26.2"], "loader": "fabric", "scenes": "all", "vars": {"mob": ["zombie", "cow", "wolf", "ocelot"], "baby": "1"}},
-        {"mc": ["26.3", "26.2"], "loader": ["neoforge", "forge"], "scenes": "all", "vars": {"mob": ["zombie", "cow", "enderman", "wolf"]}},
-        {"mc": ["26.3", "26.2"], "loader": "fabric", "scenes": "all", "addons": ["fa"], "vars": {"mob": ["zombie", "vindicator", "cow", "spider", "creeper", "enderman", "wolf", "fox", "cat"]}}
+        {"mc": ["26.3", "26.2"], "loader": ["neoforge", "forge"], "scenes": "all", "vars": {"mob": ["zombie", "cow", "enderman", "wolf", "iron_golem"]}},
+        {"mc": ["26.3", "26.2"], "loader": "fabric", "scenes": "all", "addons": ["fa"], "vars": {"mob": ["zombie", "vindicator", "cow", "spider", "creeper", "enderman", "wolf", "fox", "cat", "iron_golem"]}}
       ]
     }
   }

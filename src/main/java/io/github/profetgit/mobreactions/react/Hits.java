@@ -362,7 +362,7 @@ public final class Hits {
 
     /**
      * The clip's dust events that fall in this tick (the iron golem's steps and slams, see Clip.events): 1 = both feet,
-     * 2 = both fists on the ground in front, 3 = the whole body landing (a wide ring where it lies, or round it).
+     * 2 = both fists on the ground in front, 3 = the whole body landing (a wide ring round it).
      */
     private static void dustEvents(LivingEntity e, Reaction r) {
         for (float[] k : r.clip.events("dust")) {
@@ -380,14 +380,9 @@ public final class Hits {
                     ring(e.level(), rnd, x + fx * 0.9 - rx * 0.5, y, z + fz * 0.9 - rz * 0.5, 0.25, 6);
                 }
                 default -> {
-                    double cx = x, cz = z;
-                    if (r.clip.lie != null) {
-                        double lx = r.mirror ? -r.clip.lie[0] : r.clip.lie[0], lz = r.clip.lie[1];
-                        cx += (lx * -Math.cos(yaw) - lz * -Math.sin(yaw)) * 1.2;
-                        cz += (lx * -Math.sin(yaw) - lz * Math.cos(yaw)) * 1.2;
-                    }
-                    ring(e.level(), rnd, cx, y, cz, 0.9, 14);
-                    ring(e.level(), rnd, cx, y, cz, 0.4, 6);
+                    // a body that lies down lands centred on its position (the golem slides as it topples)
+                    ring(e.level(), rnd, x, y, z, 0.9, 14);
+                    ring(e.level(), rnd, x, y, z, 0.4, 6);
                 }
             }
         }

@@ -76,6 +76,14 @@ if os.environ.get("RIG") == "pet":
         "death_fall": ("DEATH: NO HIT (FALL)", "dropped from 12 blocks: lies down and curls up"),
         "death_wall": ("DEATH: NO ROOM", "walls at its sides: splat instead of lying on its side"),
     })
+# env RIG=golem: the iron golem's deaths
+if os.environ.get("RIG") == "golem":
+    TITLES.update({
+        "death_crit": ("DEATH: CRITICAL HIT", "falling attack: legs give, sinks into a heap"),
+        "death_fire": ("DEATH: NO HIT (FIRE)", "no attacker: creaks and sinks into a heap"),
+        "death_fall": ("DEATH: NO HIT (FALL)", "takes no fall damage: killed after landing"),
+        "death_wall": ("DEATH: NO ROOM", "wall behind it: heap in place"),
+    })
 # env RIG=spider: the spider's deaths
 if os.environ.get("RIG") == "spider":
     TITLES.update({

@@ -3,6 +3,7 @@ package io.github.profetgit.mobreactions.compat;
 import io.github.profetgit.mobreactions.MobReactions;
 import io.github.profetgit.mobreactions.mixin.ModelPartAccessor;
 import io.github.profetgit.mobreactions.react.Hits;
+import io.github.profetgit.mobreactions.react.Neutral;
 import io.github.profetgit.mobreactions.react.Pose;
 import java.util.Map;
 import java.util.Set;
@@ -87,6 +88,8 @@ public final class Emf {
         if (p != null) {
             p.pose().emf = true;
             p.pose().apply(p.model());
+        } else if (animating != null) {
+            Neutral.record(root, animating);
         }
         // hidden parts are shown again once, when the expression (or the separate arms) end; the pack's own animation
         // takes over their visibility from the next frame
@@ -106,6 +109,16 @@ public final class Emf {
             if (CROSSED_PARTS.contains(name) && (hideCrossed || showCrossed)) e.getValue().visible = showCrossed;
             set(e.getValue(), hideEyes, hideCrossed, showEyes, showCrossed);
         }
+    }
+
+    /** A pack's own part by its id anywhere under this part (EMF's current tree), or null. */
+    public static ModelPart part(ModelPart root, String id) {
+        for (Map.Entry<String, ModelPart> e : ((ModelPartAccessor) (Object) root).mobreactions$children().entrySet()) {
+            if (packName(e.getKey()).equals(id)) return e.getValue();
+            ModelPart p = part(e.getValue(), id);
+            if (p != null) return p;
+        }
+        return null;
     }
 
     /** EMF files a pack's own part under "EMF_" + its id, with a "#" added for each earlier part of the same id. */

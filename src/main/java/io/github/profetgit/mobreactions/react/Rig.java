@@ -40,8 +40,9 @@ public enum Rig {
      * quadruped rig ({@link Quad}), with a tail. Same clip names. */
     PET("pet", new String[] {"hit_front", "hit_light", "hit_side", "hit_back", "hit_big", "death_front", "death_big", "death_collapse"}),
     /** Iron golems (IronGolemModel), which never leave the ground: no flight, no landing key, dust events on steps and slams.
-     * Same clip names. */
-    GOLEM("golem", new String[] {"hit_front", "hit_light", "hit_side", "hit_back", "hit_big", "death_front", "death_big", "death_collapse"});
+     * Same clip names; every death topples back, so it also has a slump for when there's no room behind it. */
+    GOLEM("golem", new String[] {"hit_front", "hit_light", "hit_side", "hit_back", "hit_big", "death_front", "death_big", "death_collapse",
+        "death_slump"});
 
     public final String id;
     public final String[] clips;
@@ -78,11 +79,11 @@ public enum Rig {
 
     /** The death that stays in its own footprint, for a killing blow with no room to fall. */
     String heap() {
-        return this == HUMANOID ? "death_crit" : "death_big";
+        return this == HUMANOID ? "death_crit" : this == GOLEM ? "death_slump" : "death_big";
     }
 
     /** A death without a hit, and the one for when there's no room for it to fall over. */
     String collapse(boolean room) {
-        return this == HUMANOID && !room ? "death_slump" : "death_collapse";
+        return (this == HUMANOID || this == GOLEM) && !room ? "death_slump" : "death_collapse";
     }
 }

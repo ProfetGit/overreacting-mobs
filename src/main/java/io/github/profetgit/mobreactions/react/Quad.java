@@ -26,6 +26,9 @@ record Quad(float belly, float halfWidth, float zc) {
 
     static Quad of(Model<?> model) {
         if (model == null) return COW;
+        // under a model pack the rest pose doesn't show the pack's parts: measure what it draws instead
+        Quad drawn = Neutral.quad(model.root());
+        if (drawn != null) return drawn;
         return CACHE.computeIfAbsent(model, Quad::measure);
     }
 

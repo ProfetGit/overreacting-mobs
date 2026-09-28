@@ -182,6 +182,8 @@ public final class Director {
     static String expected(String s) {
         // the spider flips over in place and a pet curls up in its own footprint: no room needed
         if ((SPIDER_RIG || PET_RIG) && s.equals("death_wall")) return "death_front";
+        // every golem death topples back; with the wall behind it, it slumps in place
+        if (GOLEM_RIG && s.equals("death_wall")) return "death_slump";
         if (VILLAGER_RIG || QUADRUPED_RIG || SPIDER_RIG || CREEPER_RIG || ENDERMAN_RIG || PET_RIG || GOLEM_RIG) {
             return switch (s) {
                 case "combo", "front" -> "hit_front";

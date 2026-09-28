@@ -35,7 +35,7 @@ public final class Pose {
     private static final float ARM_X = (float) (-Math.PI / 1.5), ARM_Y = 0.1F;
     /** Enderman: vanilla's carrying arms (EndermanModel), the shoulders' model y, and how far the surprised face drops the
      * jaw (px; an angry enderman's is already open, by 5). */
-    private static final float CARRY_X = -0.5F, CARRY_Z = 0.05F, ENDER_SHOULDER = -12, JAW = 3;
+    private static final float CARRY_X = -0.5F, CARRY_Z = 0.05F, ENDER_SHOULDER = -12, JAW = 3, CREEPY_LIFT = 5;
     /** Iron golem: hips (blocks above the feet), the waist the torso bends at, and the shoulders the arms turn about (model px). */
     private static final float GOLEM_HIPS = 13f / 16f, GOLEM_WAIST = 8, GOLEM_SHOULDER_X = 11, GOLEM_SHOULDER_Y = -7;
 
@@ -285,11 +285,51 @@ public final class Pose {
             head.y -= headPos[1];
             head.z += headPos[2];
         }
+        if (emf) {
+            applyQuadrupedPack(m, kids, legs, keys);
+            return;
+        }
         for (int i = 0; i < 4; i++) {
             if (legs[i] == null) continue;
             legs[i].xRot *= walk;
             add(legs[i], keys[i]);
         }
+    }
+
+    /**
+     * Quadrupeds under a model pack (see Neutral): body and legs eased from the pack's pose (its own jump, fall and hurt
+     * poses included) to its calm standing pose by the walk track, then the keyed leg turns about each leg's real hip
+     * (the top of its boxes; Fresh Animations pivots a cow's legs at the hoof).
+     */
+    private void applyQuadrupedPack(Model<?> m, Map<String, ModelPart> kids, ModelPart[] legs, float[][] keys) {
+        float[][] calmPose = Neutral.of(m.root());
+        float k = 1 - Math.min(1, walk);
+        if (calmPose != null && k > 0) {
+            for (int i = 0; i < Neutral.PARTS.length; i++) {
+                ModelPart p = kids.get(Neutral.PARTS[i]);
+                if (p == null) continue;
+                float[] n = calmPose[i];
+                p.x += (n[0] - p.x) * k;
+                p.y += (n[1] - p.y) * k;
+                p.z += (n[2] - p.z) * k;
+                p.xRot += (n[3] - p.xRot) * k;
+                p.yRot += (n[4] - p.yRot) * k;
+                p.zRot += (n[5] - p.zRot) * k;
+            }
+        }
+        for (int i = 0; i < 4; i++) {
+            ModelPart leg = legs[i];
+            if (leg == null) continue;
+            if (calmPose == null) leg.xRot *= walk;
+            joint(leg, jointR);
+            inModel(leg, jointR, pinA);
+            add(leg, keys[i]);
+            inModel(leg, jointR, pinB);
+            leg.x += pinA.x - pinB.x;
+            leg.y += pinA.y - pinB.y;
+            leg.z += pinA.z - pinB.z;
+        }
+        if (PROBE) probeQuad(kids, legs);
     }
 
     /**
@@ -323,6 +363,23 @@ public final class Pose {
         head.x -= headPos[0];
         head.y -= headPos[1];
         head.z += headPos[2];
+        // Fresh Animations draws the golem's head and arms as parts of its own under the body (head2, right_arm2,
+        // left_arm2), which the vanilla parts' keys don't reach: they get the same turns about their own pivots
+        ModelPart head2 = emf ? io.github.profetgit.mobreactions.compat.Emf.part(m.root(), "head2") : null;
+        if (head2 != null) add(head2, headRot);
+        ModelPart arm2 = emf ? io.github.profetgit.mobreactions.compat.Emf.part(m.root(), "right_arm2") : null;
+        // its arms carry the pack's own pose (driven from the vanilla arms): they hang like the vanilla ones first
+        if (arm2 != null && arms > 0) rest(arm2, 0, 0, arms);
+        if (arm2 != null && nonZero(armR)) {
+            torso.rotationZYX(armR[2] * DEG, -armR[1] * DEG, -armR[0] * DEG);
+            about(arm2, arm2.x, arm2.y, arm2.z);
+        }
+        arm2 = emf ? io.github.profetgit.mobreactions.compat.Emf.part(m.root(), "left_arm2") : null;
+        if (arm2 != null && arms > 0) rest(arm2, 0, 0, arms);
+        if (arm2 != null && nonZero(armL)) {
+            torso.rotationZYX(armL[2] * DEG, -armL[1] * DEG, -armL[0] * DEG);
+            about(arm2, arm2.x, arm2.y, arm2.z);
+        }
         if (nonZero(armR)) {
             torso.rotationZYX(armR[2] * DEG, -armR[1] * DEG, -armR[0] * DEG);
             about(rightArm, -GOLEM_SHOULDER_X, GOLEM_SHOULDER_Y, 0);
@@ -473,6 +530,7 @@ public final class Pose {
         }
         float arms = Math.max(calm, armCalm);
         boolean ender = rig == Rig.ENDERMAN, hold = ender && carrying && !dead;
+        if (ender && dead) closeJaw(m);
         if (arms > 0) {
             if (ender) {
                 // its arms hang; a carrying enderman's hold the block out in front
@@ -489,6 +547,10 @@ public final class Pose {
         }
         m.rightLeg.xRot *= walk;
         m.leftLeg.xRot *= walk;
+        if (emf && walk < 1) {
+            relax(m.rightLeg, walk);
+            relax(m.leftLeg, walk);
+        }
         add(m.rightLeg, legR);
         add(m.leftLeg, legL);
         add(m.head, headRot);
@@ -521,6 +583,28 @@ public final class Pose {
             pinLeg(m.body, m.leftLeg, hipL, jointL);
         }
         if (PROBE) probe(m.body, m.rightLeg, m.leftLeg, b);
+    }
+
+    /**
+     * A dying enderman closes its mouth. Angry, it lifts its head off the jaw (vanilla 5 px; Fresh Animations' scream
+     * moves its head2 part up to ~6 px off its jaw part): standing that reads as a scream, but lying on its back the gap
+     * points away from the neck and the head looked detached. Vanilla's lift is undone (the jaw, `hat`, is a child of the
+     * head and was pushed back down by as much); the pack's own head parts go back to their rest pose, which EMF reports
+     * correctly for a pack's own parts.
+     */
+    private void closeJaw(HumanoidModel<?> m) {
+        if (!emf) {
+            if (creepy) {
+                m.head.y += CREEPY_LIFT;
+                m.hat.y -= CREEPY_LIFT;
+            }
+            return;
+        }
+        for (String id : new String[] {"head2", "jaw"}) {
+            ModelPart p = io.github.profetgit.mobreactions.compat.Emf.part(m.hat, id);
+            if (p == null) p = io.github.profetgit.mobreactions.compat.Emf.part(m.head, id);
+            if (p != null) p.resetPose();
+        }
     }
 
     private float carryRaise() {
@@ -586,6 +670,10 @@ public final class Pose {
         }
         rightLeg.xRot *= walk;
         leftLeg.xRot *= walk;
+        if (emf && walk < 1) {
+            relax(rightLeg, walk);
+            relax(leftLeg, walk);
+        }
         add(rightLeg, legR);
         add(leftLeg, legL);
         add(head, headRot);
@@ -609,16 +697,18 @@ public final class Pose {
     }
 
     private final Matrix3f pinM = new Matrix3f();
-    private final Vector3f pinA = new Vector3f(), pinB = new Vector3f();
-    /** Each leg's hip joint in its own part's frame, and in the body's frame as Entity Model Features posed them. */
+    private final Vector3f pinA = new Vector3f(), pinB = new Vector3f(), anat = new Vector3f();
+    /** Each leg's hip joint in its own part's frame, and the point in the body's frame it's pinned to this frame. */
     private final Vector3f jointR = new Vector3f(), jointL = new Vector3f(), hipR = new Vector3f(), hipL = new Vector3f();
 
     /**
-     * Under Entity Model Features the pack owns the rig: Fresh Animations hangs an illager's leg box on a child 12 px
-     * above the leg part's own pivot (which sits at the foot), and it moves body and legs itself every frame. The
-     * reaction turns the leg part about its pivot and bends the torso about the hips, which pulled the leg off the body
-     * (and pinning the wrong point pushed it up into the robe). So before the reaction touches anything, note where
-     * each leg's real hip joint sits in the body's frame as the pack posed it; pinLeg puts it back there afterwards.
+     * Under Entity Model Features the pack owns the rig, and Fresh Animations' differs from vanilla's: an illager's leg
+     * part pivots at the foot with its box on a grandchild 12 px up, EMF still reports vanilla's rest pose for the part
+     * (hip height), and the pack moves body and legs itself every frame, its own hurt animation letting the hips drift
+     * up to 6 px off the body. The reaction turns the leg part about its pivot and bends the torso about the hips,
+     * which pulled the legs off the body mid-air. So before the reaction touches anything, find each leg's real hip
+     * joint from its boxes and the anatomical hip on the body (vanilla's rest pose: the leg's pivot in the body's
+     * frame), eased toward where the pack holds it as the walk track comes back; pinLeg puts the joint there afterwards.
      */
     private void holdLegs(ModelPart body, ModelPart rightLeg, ModelPart leftLeg) {
         holdLeg(body, rightLeg, jointR, hipR);
@@ -630,6 +720,11 @@ public final class Pose {
         inModel(leg, joint, hip);
         hip.sub(body.x, body.y, body.z);
         pinM.rotationZYX(body.zRot, body.yRot, body.xRot).transpose().transform(hip);
+        var br = body.getInitialPose();
+        var lr = leg.getInitialPose();
+        anat.set(lr.x() - br.x(), lr.y() - br.y(), lr.z() - br.z());
+        pinM.rotationZYX(br.zRot(), br.yRot(), br.xRot()).transpose().transform(anat);
+        anat.lerp(hip, Math.min(1, walk), hip);
     }
 
     /** Moves the leg so its hip joint is back where the body (as posed now) holds it. */
@@ -642,6 +737,19 @@ public final class Pose {
         leg.z += pinA.z - pinB.z;
     }
 
+    /**
+     * The pack's own parts under a leg (Fresh Animations' lower leg, which kicks up to ~40° in its hurt animation, on
+     * top of the reaction's keys) are scaled back to rest by the walk track, like the leg part's own swing.
+     */
+    private static void relax(ModelPart leg, float w) {
+        for (ModelPart c : ((ModelPartAccessor) (Object) leg).mobreactions$children().values()) {
+            c.xRot *= w;
+            c.yRot *= w;
+            c.zRot *= w;
+            relax(c, w);
+        }
+    }
+
     /** A point in a part's frame (px), in the model's frame. */
     private void inModel(ModelPart p, Vector3f local, Vector3f out) {
         pinM.rotationZYX(p.zRot, p.yRot, p.xRot).transform(local, out);
@@ -649,48 +757,62 @@ public final class Pose {
     }
 
     /**
-     * A leg's hip joint in its own frame: the top centre of its boxes, found through the children that hold them (by
-     * their positions, ignoring their turn: a child such as Fresh Animations' lower leg turns about this very point).
-     * Vanilla legs give their own pivot.
+     * A leg's hip joint in its own frame: the top centre of every visible box under it, placed by the parts' positions
+     * (their turns are left out: a part such as Fresh Animations' lower leg turns about this very point). Vanilla legs
+     * give their own pivot.
      */
-    private static void joint(ModelPart leg, Vector3f out) {
-        out.zero();
-        ModelPart p = leg;
-        for (int depth = 0; depth < 4; depth++) {
-            List<ModelPart.Cube> cubes = ((ModelPartAccessor) (Object) p).mobreactions$cubes();
-            if (!cubes.isEmpty()) {
-                float minX = Float.MAX_VALUE, maxX = -Float.MAX_VALUE, minY = Float.MAX_VALUE, minZ = Float.MAX_VALUE, maxZ = -Float.MAX_VALUE;
-                for (ModelPart.Cube c : cubes) {
-                    minX = Math.min(minX, c.minX);
-                    maxX = Math.max(maxX, c.maxX);
-                    minY = Math.min(minY, c.minY);
-                    minZ = Math.min(minZ, c.minZ);
-                    maxZ = Math.max(maxZ, c.maxZ);
-                }
-                out.add((minX + maxX) / 2, minY, (minZ + maxZ) / 2);
-                return;
-            }
-            ModelPart next = null;
-            for (ModelPart c : ((ModelPartAccessor) (Object) p).mobreactions$children().values()) {
-                if (hasCubes(c)) {
-                    next = c;
-                    break;
-                }
-            }
-            if (next == null) return;
-            out.add(next.x, next.y, next.z);
-            p = next;
-        }
+    static void joint(ModelPart leg, Vector3f out) {
+        float[] box = {Float.MAX_VALUE, -Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE, -Float.MAX_VALUE};
+        bounds(leg, 0, 0, 0, box, true);
+        if (box[0] > box[1]) out.zero();
+        else out.set((box[0] + box[1]) / 2, box[2], (box[3] + box[4]) / 2);
     }
 
-    private static boolean hasCubes(ModelPart p) {
-        if (!((ModelPartAccessor) (Object) p).mobreactions$cubes().isEmpty()) return true;
-        for (ModelPart c : ((ModelPartAccessor) (Object) p).mobreactions$children().values()) if (hasCubes(c)) return true;
-        return false;
+    /** Grows {minX, maxX, minY, minZ, maxZ} by the visible boxes under p, offset by (ox, oy, oz). */
+    private static void bounds(ModelPart p, float ox, float oy, float oz, float[] box, boolean root) {
+        if (!p.visible) return;
+        if (!p.skipDraw) {
+            for (ModelPart.Cube c : ((ModelPartAccessor) (Object) p).mobreactions$cubes()) {
+                box[0] = Math.min(box[0], ox + c.minX);
+                box[1] = Math.max(box[1], ox + c.maxX);
+                box[2] = Math.min(box[2], oy + c.minY);
+                box[3] = Math.min(box[3], oz + c.minZ);
+                box[4] = Math.max(box[4], oz + c.maxZ);
+            }
+        }
+        for (ModelPart c : ((ModelPartAccessor) (Object) p).mobreactions$children().values()) bounds(c, ox + c.x, oy + c.y, oz + c.z, box, false);
     }
 
     /** Dev probe (-Dmobreactions.joints=true): each leg's hip joint in the body's frame, per frame. Attached = constant. */
     private static final boolean PROBE = Boolean.getBoolean("mobreactions.joints");
+    private static int probed;
+
+    /** Dev probe for quadrupeds: each leg's hip joint in the body's frame (attached = constant). */
+    private void probeQuad(Map<String, ModelPart> kids, ModelPart[] legs) {
+        ModelPart body = kids.get("body");
+        StringBuilder sb = new StringBuilder("[mrjoint-quad] ").append(System.nanoTime()).append(" walk=").append(walk);
+        Matrix3f inv = new Matrix3f().rotationZYX(body.zRot, body.yRot, body.xRot).transpose();
+        Vector3f j = new Vector3f(), w = new Vector3f();
+        for (ModelPart leg : legs) {
+            if (leg == null) continue;
+            joint(leg, j);
+            inModel(leg, j, w);
+            inv.transform(w.sub(body.x, body.y, body.z));
+            sb.append(String.format(java.util.Locale.ROOT, " %.2f,%.2f,%.2f", w.x, w.y, w.z));
+        }
+        sb.append(String.format(java.util.Locale.ROOT, " body=%.2f,%.2f,%.2f r=%.1f,%.1f,%.1f", body.x, body.y, body.z,
+            Math.toDegrees(body.xRot), Math.toDegrees(body.yRot), Math.toDegrees(body.zRot)));
+        System.out.println(sb);
+    }
+
+    private static void dump(String name, ModelPart p, int depth) {
+        StringBuilder c = new StringBuilder();
+        for (ModelPart.Cube q : ((ModelPartAccessor) (Object) p).mobreactions$cubes())
+            c.append(String.format(java.util.Locale.ROOT, " [%.1f..%.1f %.1f..%.1f %.1f..%.1f]", q.minX, q.maxX, q.minY, q.maxY, q.minZ, q.maxZ));
+        System.out.printf(java.util.Locale.ROOT, "[mrjoint-init] %s%s at %.2f,%.2f,%.2f rot %.1f,%.1f,%.1f vis=%b skip=%b%s%n", "  ".repeat(depth), name, p.x, p.y, p.z,
+            Math.toDegrees(p.xRot), Math.toDegrees(p.yRot), Math.toDegrees(p.zRot), p.visible, p.skipDraw, c);
+        if (depth < 3) for (var e : ((ModelPartAccessor) (Object) p).mobreactions$children().entrySet()) dump(e.getKey(), e.getValue(), depth + 1);
+    }
 
     private void probe(ModelPart body, ModelPart rightLeg, ModelPart leftLeg, Biped b) {
         Vector3f jr = new Vector3f(), jl = new Vector3f(), r = new Vector3f(), l = new Vector3f();
@@ -704,6 +826,17 @@ public final class Pose {
         System.out.printf(java.util.Locale.ROOT, "[mrjoint] %d emf=%b hips=%.2f legY=%.2f jointR=%.2f,%.2f,%.2f R=%.2f,%.2f,%.2f L=%.2f,%.2f,%.2f legR=%.1f,%.1f,%.1f held=%.2f,%.2f,%.2f%n",
             System.nanoTime(), emf, b.hips(), rightLeg.y, jr.x, jr.y, jr.z, r.x, r.y, r.z, l.x, l.y, l.z,
             Math.toDegrees(rightLeg.xRot), Math.toDegrees(rightLeg.yRot), Math.toDegrees(rightLeg.zRot), hipR.x, hipR.y, hipR.z);
+        if (probed++ % 60 == 0) {
+            var bi = body.getInitialPose();
+            var li = rightLeg.getInitialPose();
+            System.out.printf(java.util.Locale.ROOT, "[mrjoint-init] body=%.2f,%.2f,%.2f r=%.1f,%.1f,%.1f leg=%.2f,%.2f,%.2f cubes=%d kids=%s%n", bi.x(), bi.y(), bi.z(),
+                Math.toDegrees(bi.xRot()), Math.toDegrees(bi.yRot()), Math.toDegrees(bi.zRot()), li.x(), li.y(), li.z(),
+                ((ModelPartAccessor) (Object) body).mobreactions$cubes().size(), ((ModelPartAccessor) (Object) rightLeg).mobreactions$children().keySet());
+            for (ModelPart.Cube c : ((ModelPartAccessor) (Object) body).mobreactions$cubes())
+                System.out.printf(java.util.Locale.ROOT, "[mrjoint-init]   body cube %.1f..%.1f %.1f..%.1f %.1f..%.1f%n", c.minX, c.maxX, c.minY, c.maxY, c.minZ, c.maxZ);
+            dump("leg", rightLeg, 0);
+            dump("body", body, 0);
+        }
     }
 
     private static void rest(ModelPart p, float xRot, float yRot, float w) {

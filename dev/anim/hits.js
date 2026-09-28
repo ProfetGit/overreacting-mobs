@@ -2054,7 +2054,7 @@ function makeHits(RIG) {
     // It slams flat on its back, the long arms slap out to the sides, the feet kick up on the slam, flop back and settle,
     // and the head rolls to one side, x x. Pivoting on the heels would lay the whole 2.8 blocks behind its feet, so it also
     // slides 18 px forward in the air. Lying on its back the head's back (4 px behind the neck) would sink 3 px and the body's
-    // 1: the root lifts 1 px and the head moves 2 px up (toward its face) and tucks its chin.
+    // 1: the root lifts 1 px and the head moves 1 px up (toward its face) and tucks its chin.
     function topple(rows) {
       const rot = [], pos = [];
       for (const [t, rx, ry, dy, dz, f] of rows) {
@@ -2074,8 +2074,10 @@ function makeHits(RIG) {
         pelvis: { rot: [[4, [0, 0, 0]]] },
         torso: { rot: [[5, [4, 0, 0]], [8, [-3, 0, 0]], [10, [0, 0, 0], 'L'], [12, [-3, 0, 0]], [14, [0, 0, 0]]] },
         head: {
-          rot: [[5, [10, 0, 0]], [8, [-8, 0, 0]], [10, [-14, 0, 0], 'L'], [11, [-20, -10, 0]], [13, [-12, 24, 0]], [16, [-12, 32, 4]], [24, [-12, 34, 4]]],
-          pos: [[9, [0, 0, 0]], [10, [0, 0, -2], 'L']],
+          // 0.10.4 (the user: the head floated off the shoulders): 1 px lift, just what the root's 1 px needs, and a
+          // softer roll to the side (34° swung the 8 px head's corner up off the 4 px deep body)
+          rot: [[5, [10, 0, 0]], [8, [-8, 0, 0]], [10, [-14, 0, 0], 'L'], [11, [-18, -8, 0]], [13, [-10, 14, 0]], [16, [-8, 18, 3]], [24, [-8, 20, 3]]],
+          pos: [[9, [0, 0, 0]], [10, [0, 0, -1], 'L']],
         },
         arm_r: { rot: [[5, [40, 0, 40]], [7, [70, 0, 44]], [9, [96, 0, 44]], [10, [20, 0, 70], 'L'], [12, [6, 0, 84]], [14, [2, 0, 74]], [16, [4, 0, 78]], [20, [3, 0, 77]]] },
         arm_l: { rot: [[5, [52, 10, 24]], [7, [80, 4, 30]], [9, [100, 0, 32]], [10, [24, 0, 50], 'L'], [12, [8, 0, 60]], [14, [2, 0, 52]], [16, [4, 0, 55]], [20, [3, 0, 54]]] },
@@ -2492,13 +2494,17 @@ function makeHits(RIG) {
       dust: [[0, 0], [2, 1], [3, 0], [6, 2], [7, 0]],
     };
 
-    // Deaths (FLIPS, the user picks from real-client GIFs). tower: it rocks once, then tips back stiff over its heels like a
+    // Deaths: three front variants were filmed (FLIPS, IG.flip(v)); the user picked tower (2026-09-28). Pivoting on its
+    // heels would lay it all behind its feet, away from its position (a burning golem's flames stayed standing at its feet),
+    // so it also slides 21 px forward as it falls and lands centred on its spot (0.10.3). tower: it rocks once, then tips back stiff over its heels like a
     // falling tower and slams flat on its back (dust 3); the arms flop out, the feet bounce. Lying on its back the body's back
     // (5 px behind the leg line) would sink 3 px: the root lifts 3.
+    // rows [t, rx, ry, dy, (dz), (flag)]: dz slides it along z (px)
     function topple(rows, zp) {
       const rot = [], pos = [];
-      for (const [t, rx, ry, dy, f] of rows) {
-        const a = rx * D, k = [0, r2(zp * Math.sin(a) + dy), r2(zp * (1 - Math.cos(a)))];
+      for (const row of rows) {
+        const [t, rx, ry, dy] = row, f = typeof row[row.length - 1] === 'string' ? row[row.length - 1] : undefined, dz = typeof row[4] === 'number' ? row[4] : 0;
+        const a = rx * D, k = [0, r2(zp * Math.sin(a) + dy), r2(zp * (1 - Math.cos(a)) + dz)];
         rot.push(f ? [t, [rx, ry, 0], f] : [t, [rx, ry, 0]]);
         pos.push(f ? [t, k, f] : [t, k]);
       }
@@ -2506,7 +2512,8 @@ function makeHits(RIG) {
     }
     const tower = {
       setup: 'still', len: 44, lie: [0, 1], down: 19, rest: 0.8,
-      root: topple([[4, 6, 6, 0], [7, -2, 6, 0], [10, 4, 8, 0], [12, 14, 8, 0], [14, 30, 8, 0.5], [16, 52, 8, 1.2], [18, 80, 8, 2.4], [19, 90, 8, 3, 'L'], [21, 86, 8, 2.8], [23, 90, 8, 3]], 2),
+      root: topple([[4, 6, 6, 0], [7, -2, 6, 0], [10, 4, 8, 0], [12, 14, 8, 0, -1], [14, 30, 8, 0.5, -4], [16, 52, 8, 1.2, -10], [18, 80, 8, 2.4, -17], [19, 90, 8, 3, -21, 'L'],
+        [21, 86, 8, 2.8, -21], [23, 90, 8, 3, -21]], 2),
       torso: { rot: [[4, [8, 4, 0]], [8, [0, 0, 0]], [18, [-3, 0, 0]], [19, [0, 0, 0], 'L'], [21, [-4, 0, 0]], [23, [0, 0, 0]]] },
       head: { rot: [[4, [10, 4, 0]], [9, [-4, 0, 0]], [14, [-10, 0, 0]], [19, [-16, 0, 0], 'L'], [21, [-18, -16, 0]], [24, [-14, 28, 0]], [30, [-14, 30, 4]]] },
       arm_r: { rot: [[4, [10, 0, 8]], [10, [4, 0, 6]], [14, [30, 0, 14]], [17, [60, 0, 20]], [19, [20, 0, 60], 'L'], [21, [8, 0, 76]], [23, [2, 0, 70]], [26, [4, 0, 72]]] },
@@ -2550,35 +2557,49 @@ function makeHits(RIG) {
     const FLIPS = { tower: deathClip(ANIMS, 'hit_front', 2, tower), crumble: deathClip(ANIMS, 'hit_front', 2, crumble), plant: deathClip(ANIMS, 'hit_front', 2, plant) };
     for (const [n, d] of Object.entries({ tower, crumble, plant })) FLIPS[n].dust = d.dust;
     ANIMS.death_front = FLIPS.tower;
-    // Big: the squat gives way: legs skid out into the splits, it drops to the ground (dust), slumps forward over its
-    // legs with its fists on the ground in front, x x. In its own footprint, so also the fallback without room.
-    const heap = (t0, s) => {
-      const T = (t) => t0 + (t - t0) * s;
-      return {
-        root: { pos: [[T(t0), [0, -3.6, 0]], [T(t0 + 3), [0, -7, 0]], [T(t0 + 6), [0, -11.5, 0], 'L'], [T(t0 + 8), [0, -10.8, 0]], [T(t0 + 10), [0, -11.5, 0]]] },
-        pelvis: { rot: [[T(t0 + 6), [0, 0, 0], 'L'], [T(t0 + 9), [0, 0, 3]], [T(t0 + 12), [0, 0, 0]]] },
-        torso: { rot: [[T(t0), [-30, 0, 0]], [T(t0 + 6), [-20, 0, 0], 'L'], [T(t0 + 9), [-30, 0, 2]], [T(t0 + 13), [-44, 0, 4]], [T(t0 + 17), [-48, 0, 4]]] },
-        head: { rot: [[T(t0), [4, 0, 0]], [T(t0 + 6), [-10, 0, 0], 'L'], [T(t0 + 9), [4, 10, 8]], [T(t0 + 13), [-10, 6, 14]], [T(t0 + 17), [-12, 6, 16]]] },
-        arm_r: { rot: [[T(t0), [36, 0, 8]], [T(t0 + 6), [30, 0, 20], 'L'], [T(t0 + 9), [44, 0, 14]], [T(t0 + 13), [58, 0, 12]], [T(t0 + 17), [60, 0, 12]]] },
-        arm_l: { rot: [[T(t0), [38, 0, 8]], [T(t0 + 6), [32, 0, 18], 'L'], [T(t0 + 9), [46, 0, 12]], [T(t0 + 13), [62, 0, 10]], [T(t0 + 17), [64, 0, 10]]] },
-        leg_r: { rot: [[T(t0), [0, 0, 42]], [T(t0 + 3), [0, 0, 60]], [T(t0 + 6), [0, 0, 84], 'L'], [T(t0 + 8), [0, 0, 80]], [T(t0 + 10), [0, 0, 84]]] },
-        leg_l: { rot: [[T(t0), [0, 0, 42]], [T(t0 + 3), [0, 0, 60]], [T(t0 + 6), [0, 0, 84], 'L'], [T(t0 + 8), [0, 0, 80]], [T(t0 + 10), [0, 0, 84]]] },
-      };
+    // Big and no hit: both topple back over the heels like the tower (the user disliked the splits these used to end in,
+    // 2026-09-28). shifted(d, dt) is a copy of a death's keys dt ticks later (the tower's first keys are at tick 4).
+    const shifted = (d, dt) => {
+      const o = JSON.parse(JSON.stringify(d));
+      for (const v of Object.values(o)) {
+        if (Array.isArray(v)) v.forEach(k => { k[0] += dt; });
+        else if (v && typeof v === 'object') for (const ch of Object.values(v)) if (Array.isArray(ch)) ch.forEach(k => { k[0] += dt; });
+      }
+      o.down += dt;
+      o.len += dt;
+      return o;
     };
-    const big = Object.assign({ setup: 'still', len: 40, lie: null, down: 16, rest: 1.2, face: [[0, 1], [6, 2]], dust: [[0, 0], [2, 1], [3, 0], [6, 2], [7, 0], [16, 3], [17, 0]] }, heap(10, 1));
-    ANIMS.death_big = deathClip(ANIMS, 'hit_big', 9, big);
+    // Big: the fists slam the ground (hit_big up to tick 6), it straightens halfway out of the squat and topples back.
+    const big = Object.assign(shifted(tower, 6), { face: [[0, 1], [6, 2]] });
+    big.dust = [[0, 0], [2, 1], [3, 0], [6, 2], [7, 0], [25, 3], [26, 0]];
+    ANIMS.death_big = deathClip(ANIMS, 'hit_big', 6, big);
     ANIMS.death_big.dust = big.dust;
-    // No hit: it creaks (small twitches), the legs start to spread, and it sinks into the same heap, slower.
-    const col = heap(8, 1.4);
-    col.root.pos.unshift([0, [0, 0, 0]], [4, [0, -1, 0]]);
-    col.torso.rot.unshift([0, [0, 0, 0]], [3, [-6, 0, 3]], [5, [-4, 0, -3]]);
-    col.head.rot.unshift([0, [0, 0, 0]], [3, [-8, 8, 4]], [5, [-4, -8, -4]]);
-    col.leg_r.rot.unshift([0, [0, 0, 0]], [5, [0, 0, 20]]);
-    col.leg_l.rot.unshift([0, [0, 0, 0]], [5, [0, 0, 20]]);
-    col.arm_r.rot.unshift([0, [0, 0, 0]], [4, [8, 0, 10]]);
-    col.arm_l.rot.unshift([0, [0, 0, 0]], [4, [8, 0, 10]]);
-    ANIMS.death_collapse = Object.assign({ setup: 'still', len: 44, land: -1, lie: null, down: 17, rest: 1.2, walk: [[0, 1, 'L'], [3, 0]], face: [[0, 1], [3, 3], [8, 2]],
-      dust: [[0, 0], [16, 3], [17, 0]] }, col);
+    // No hit: it creaks (small twitches) and topples back.
+    const col = shifted(tower, 2);
+    col.root.rot.unshift([0, [0, 0, 0]], [3, [0, 0, 2]]);
+    col.root.pos.unshift([0, [0, 0, 0]], [3, [0, 0, 0]]);
+    col.torso.rot.unshift([0, [0, 0, 0]], [3, [-6, 0, 3]]);
+    col.head.rot.unshift([0, [0, 0, 0]], [3, [-8, 8, 4]]);
+    col.arm_r.rot.unshift([0, [0, 0, 0]], [3, [8, 0, 10]]);
+    col.arm_l.rot.unshift([0, [0, 0, 0]], [3, [8, 0, 10]]);
+    col.leg_r.rot.unshift([0, [0, 0, 0]]);
+    col.leg_l.rot.unshift([0, [0, 0, 0]]);
+    ANIMS.death_collapse = Object.assign(col, { land: -1, walk: [[0, 1, 'L'], [3, 0]], face: [[0, 1], [3, 3], [21, 2]] });
+    // Without room to fall back (a wall behind it): it sits down hard in its own footprint, legs out in front, and slumps
+    // forward over them. The mod plays it instead of any golem death that can't lie down.
+    ANIMS.death_slump = {
+      setup: 'still', len: 40, land: -1, lie: null, down: 11, rest: 1.2,
+      root: { pos: [[0, [0, 0, 0]], [3, [0, 0, 0]], [6, [0, -2, 0]], [9, [0, -8, 0]], [11, [0, -10.5, 0], 'L'], [13, [0, -9.8, 0]], [15, [0, -10.5, 0]]] },
+      torso: { rot: [[0, [0, 0, 0]], [3, [6, 0, 0]], [9, [-10, 0, 0]], [11, [-16, 0, 0], 'L'], [14, [-24, 0, 2]], [18, [-40, 0, 3]], [22, [-44, 0, 4]]] },
+      head: { rot: [[0, [0, 0, 0]], [3, [10, 4, 0]], [9, [-8, 0, 0]], [11, [-16, 0, 0], 'L'], [14, [4, 8, 6]], [18, [-14, 6, 12]], [24, [-16, 6, 14]]] },
+      arm_r: { rot: [[0, [0, 0, 0]], [3, [10, 0, 10]], [9, [20, 0, 24]], [11, [4, 0, 30], 'L'], [14, [20, 0, 16]], [18, [40, 0, 10]], [24, [44, 0, 10]]] },
+      arm_l: { rot: [[0, [0, 0, 0]], [3, [12, 0, 10]], [9, [22, 0, 22]], [11, [6, 0, 28], 'L'], [14, [22, 0, 14]], [18, [42, 0, 8]], [24, [46, 0, 8]]] },
+      leg_r: { rot: [[0, [0, 0, 0]], [3, [0, 0, 4]], [6, [20, 0, 10]], [9, [60, 0, 12]], [11, [82, 0, 12], 'L'], [13, [78, 0, 12]], [15, [82, 0, 12]]] },
+      leg_l: { rot: [[0, [0, 0, 0]], [3, [0, 0, 4]], [6, [18, 0, 10]], [9, [58, 0, 12]], [11, [80, 0, 12], 'L'], [13, [76, 0, 12]], [15, [80, 0, 12]]] },
+      walk: [[0, 1, 'L'], [3, 0]],
+      face: [[0, 1], [3, 3], [11, 2]],
+      dust: [[0, 0], [11, 1], [12, 0]],
+    };
     return { ANIMS, FLIPS };
   }
 
