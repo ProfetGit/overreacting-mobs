@@ -57,6 +57,17 @@ To uninstall, remove the jar. Nothing is saved to your worlds.
 - The animations only change what you see. Where a mob really is, and where it can hit you from, is unchanged.
 - Players without the mod see vanilla hits.
 
+![More from Profet](https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/desc/title-more-from-profet.png)
+
+<!-- promo:start -->
+<p align="center">
+<a href="https://www.curseforge.com/minecraft/mc-mods/tidy-pockets"><img src="https://raw.githubusercontent.com/ProfetGit/assets/main/promo/tidy-pockets.gif" alt="Tidy Pockets: One click. All sorted. Client side." width="49%"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/having-a-blast"><img src="https://raw.githubusercontent.com/ProfetGit/assets/main/promo/having-a-blast.gif" alt="Having a Blast: One boom. Bouncy blocks. Client or server." width="49%"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/far-out-zoom"><img src="https://raw.githubusercontent.com/ProfetGit/assets/main/promo/far-out-zoom.gif" alt="Far Out Zoom: The horizon, up close. Client side." width="49%"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/travelers-lantern"><img src="https://raw.githubusercontent.com/ProfetGit/assets/main/promo/travelers-lantern.gif" alt="Traveler's Lantern: Your light. Hands free. Client or server." width="49%"></a>
+</p>
+<!-- promo:end -->
+
 ![Support](https://raw.githubusercontent.com/ProfetGit/overreacting-mobs/main/docs/desc/title-support.png)
 
 Overreacting Mobs is free. If it made you laugh at a zombie, a coffee helps fund the next update.
