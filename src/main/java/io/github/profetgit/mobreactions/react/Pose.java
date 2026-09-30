@@ -355,10 +355,25 @@ public final class Pose {
             rest(rightArm, 0, 0, arms);
             rest(leftArm, 0, 0, arms);
         }
-        rightLeg.xRot *= walk;
-        leftLeg.xRot *= walk;
-        add(rightLeg, legR);
-        add(leftLeg, legL);
+        // Fresh Animations puts both legs under the right_leg part (right_leg2, left_leg2) and leaves left_leg empty, so the
+        // leg keys go to the two lower parts, which hang from the hips
+        ModelPart rightLeg2 = emf ? io.github.profetgit.mobreactions.compat.Emf.part(m.root(), "right_leg2") : null;
+        ModelPart leftLeg2 = emf ? io.github.profetgit.mobreactions.compat.Emf.part(m.root(), "left_leg2") : null;
+        float waistY = GOLEM_WAIST;
+        if (rightLeg2 != null && leftLeg2 != null) {
+            // these pivot at the foot with the box 16 px above it, so they turn about their hip joints; the torso bends
+            // about the hips (Fresh Animations' body sits at hip height, not at vanilla's waist)
+            joint(rightLeg2, jointR);
+            inModel(rightLeg2, jointR, pinA);
+            waistY = pinA.y;
+            legAbout(rightLeg2, legR);
+            legAbout(leftLeg2, legL);
+        } else {
+            rightLeg.xRot *= walk;
+            leftLeg.xRot *= walk;
+            add(rightLeg, legR);
+            add(leftLeg, legL);
+        }
         add(head, headRot);
         head.x -= headPos[0];
         head.y -= headPos[1];
@@ -390,11 +405,20 @@ public final class Pose {
         }
         if (nonZero(torsoRot)) {
             torso.rotationZYX(torsoRot[2] * DEG, -torsoRot[1] * DEG, -torsoRot[0] * DEG);
-            about(body, 0, GOLEM_WAIST, 0);
-            about(head, 0, GOLEM_WAIST, 0);
-            about(rightArm, 0, GOLEM_WAIST, 0);
-            about(leftArm, 0, GOLEM_WAIST, 0);
+            about(body, 0, waistY, 0);
+            about(head, 0, waistY, 0);
+            about(rightArm, 0, waistY, 0);
+            about(leftArm, 0, waistY, 0);
         }
+    }
+
+    /** Turns a leg part about its hip joint (the top of its box) by the clip's leg units. */
+    private void legAbout(ModelPart leg, float[] deg) {
+        if (!nonZero(deg)) return;
+        joint(leg, jointL);
+        inModel(leg, jointL, pinB);
+        torso.rotationZYX(deg[2] * DEG, -deg[1] * DEG, -deg[0] * DEG);
+        about(leg, pinB.x, pinB.y, pinB.z);
     }
 
     /**
@@ -460,11 +484,58 @@ public final class Pose {
                 leg.yRot = rest.yRot() + (leg.yRot - rest.yRot()) * walk;
                 leg.zRot = rest.zRot() + (leg.zRot - rest.zRot()) * walk;
             }
+            // Fresh Animations pivots a leg part at the leg's outer tip (the box hangs off it by 16 px toward the body), so the
+            // turns and the curl's shrink go about the leg's inner joint, which is pinned in place
+            boolean joint = emf && legJoint(leg, i < 4, jointR);
+            if (joint) inScaled(leg, jointR, pinA);
             add(leg, legs8[i]);
             leg.xScale *= legScale8[i][0];
             leg.yScale *= legScale8[i][1];
             leg.zScale *= legScale8[i][2];
+            if (joint) {
+                inScaled(leg, jointR, pinB);
+                leg.x += pinA.x - pinB.x;
+                leg.y += pinA.y - pinB.y;
+                leg.z += pinA.z - pinB.z;
+            }
         }
+    }
+
+    /**
+     * A spider leg's inner joint in its own frame, from its visible boxes: the box end nearest the body (a right leg's boxes
+     * lie along -x from the joint, a left leg's along +x). False when the part has no box, or its box already starts at the
+     * pivot (vanilla's legs: the origin is the joint).
+     */
+    private static boolean legJoint(ModelPart leg, boolean right, Vector3f out) {
+        float[] b = {Float.MAX_VALUE, -Float.MAX_VALUE, Float.MAX_VALUE, -Float.MAX_VALUE, Float.MAX_VALUE, -Float.MAX_VALUE};
+        extents(leg, 0, 0, 0, b);
+        if (b[0] > b[1]) return false;
+        float x = right ? b[1] : b[0];
+        if (Math.abs(x) < 2.5F) return false;
+        out.set(x, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2);
+        return true;
+    }
+
+    /** Grows {minX, maxX, minY, maxY, minZ, maxZ} by the visible boxes under p, offset by (ox, oy, oz). */
+    private static void extents(ModelPart p, float ox, float oy, float oz, float[] b) {
+        if (!p.visible) return;
+        if (!p.skipDraw) {
+            for (ModelPart.Cube c : ((ModelPartAccessor) (Object) p).mobreactions$cubes()) {
+                b[0] = Math.min(b[0], ox + c.minX);
+                b[1] = Math.max(b[1], ox + c.maxX);
+                b[2] = Math.min(b[2], oy + c.minY);
+                b[3] = Math.max(b[3], oy + c.maxY);
+                b[4] = Math.min(b[4], oz + c.minZ);
+                b[5] = Math.max(b[5], oz + c.maxZ);
+            }
+        }
+        for (ModelPart c : ((ModelPartAccessor) (Object) p).mobreactions$children().values()) extents(c, ox + c.x, oy + c.y, oz + c.z, b);
+    }
+
+    /** A point in a part's frame (px) in its parent's frame: scaled, turned and moved like the part is drawn. */
+    private void inScaled(ModelPart p, Vector3f local, Vector3f out) {
+        pinM.rotationZYX(p.zRot, p.yRot, p.xRot).transform(local.x * p.xScale, local.y * p.yScale, local.z * p.zScale, out);
+        out.add(p.x, p.y, p.z);
     }
 
     /**

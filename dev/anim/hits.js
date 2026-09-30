@@ -2474,24 +2474,26 @@ function makeHits(RIG) {
       dust: [[0, 0], [10, 1], [11, 0]],
     };
 
-    // Big (crits and sprint hits): the blow from above drives it down: the legs skid apart into a deep squat, the chest
-    // folds, both fists come down and slam the ground (dust); it stays down a beat, dazed (x x), sways, pushes itself up
-    // slowly, straightens and shakes it off.
+    // Big (crits and sprint hits): a bigger front hit, 0.10.5 (the user disliked the squat and fist slam: "the legs go
+    // weird"). The chest is hurled back and the arms fly out wide; it rocks far back onto its heels, its left leg comes off
+    // the ground and plants a very heavy step back (dust), then it lunges forward over both feet into a hard stomp (dust)
+    // with the arms swinging through like pendulums, wobbles dazed (x x), settles and shakes its head.
     ANIMS.hit_big = {
-      setup: 'still', len: 42, land: -1,
-      root: { pos: [...L2([0, -1.2, 0]), [4, [0, -2.8, 0]], [6, [0, -3.6, 0], 'L'], [8, [0, -3.2, 0]], [10, [0, -3.6, 0]], [20, [0, -3.4, 0]], [26, [0, -1.6, 0]], [30, [0, 0, 0]]],
-        scale: [...L2([1.03, 0.96, 1.03]), [4, [1, 1, 1]], [6, [1.02, 0.97, 1.02], 'L'], [8, [1, 1, 1]]] },
-      pelvis: { rot: [...L2([0, 0, 2]), [6, [0, 0, 0], 'L'], [12, [0, 0, 5]], [16, [0, 0, -5]], [20, [0, 0, 4]], [24, [0, 0, -2]], [28, [0, 0, 0]]] },
-      torso: { rot: [...L2([-12, 0, 4]), [4, [-24, 0, 2]], [6, [-32, 0, 0], 'L'], [8, [-28, 0, 0]], [10, [-30, 0, 0]], [18, [-26, 0, 0]], [24, [-12, 0, 0]], [28, [0, 0, 0]]] },
-      head: { rot: [...L2([-20, 6, 6]), [4, [-10, 0, 0]], [6, [4, 0, 0], 'L'], [8, [-6, 0, 0]], [11, [8, -14, 10]], [14, [4, 12, -10]], [17, [6, -10, 8]], [20, [2, 8, -6]],
-        [23, [4, -4, 4]], [26, [0, 0, 0]], ...shake(30)] },
-      arm_r: { rot: [...L2([20, 0, 30]), [3, [70, 0, 20]], [5, [46, 0, 10]], [6, [36, 0, 8], 'L'], [8, [40, 0, 8]], [10, [36, 0, 8]], [20, [34, 0, 8]], [25, [14, 0, 4]], [29, [0, 0, 0]]] },
-      arm_l: { rot: [...L2([24, 0, 28]), [3, [74, 0, 18]], [5, [48, 0, 10]], [6, [38, 0, 8], 'L'], [8, [42, 0, 8]], [10, [38, 0, 8]], [20, [36, 0, 8]], [25, [16, 0, 4]], [29, [0, 0, 0]]] },
-      leg_r: { rot: [...L2([0, 0, 22]), [4, [0, 0, 36]], [6, [0, 0, 42], 'L'], [20, [0, 0, 40]], [26, [0, 0, 18]], [30, [0, 0, 0]]] },
-      leg_l: { rot: [...L2([0, 0, 22]), [4, [0, 0, 36]], [6, [0, 0, 42], 'L'], [20, [0, 0, 40]], [26, [0, 0, 18]], [30, [0, 0, 0]]] },
-      walk: [[0, 0, 'L'], [26, 0], [30, 1]],
-      face: [[0, 1], [6, 2], [27, 1], [36, 0]],
-      dust: [[0, 0], [2, 1], [3, 0], [6, 2], [7, 0]],
+      setup: 'still', len: 44, land: -1,
+      root: Object.assign(stand([...L2([0, 8, 0, -1.4]).map(k => [k[0], ...k[1], 'L']), [4, 8, 10, 0, -1.0], [6, 13, 12, 0, -0.6], [9, 14, 12, 0, 0], [11, 6, 8, 0, 0],
+        [12, -8, 6, 0, -2.0, 'L'], [14, -3, 4, 0, -0.8], [17, 4, 2, 0, -0.3], [20, 0, 0, 0, 0]]), {
+        scale: [...L2([1.03, 0.96, 1.03]), [4, [1, 1, 1]], [11, [1, 1, 1]], [12, [1.03, 0.96, 1.03], 'L'], [14, [1, 1, 1]]],
+      }),
+      torso: { rot: [...L2([18, 12, 6]), [4, [30, 16, 8]], [8, [24, 10, 4]], [11, [6, 4, 0]], [12, [-16, 0, 0], 'L'], [14, [-8, 0, 0]], [17, [2, 0, 0]], [20, [0, 0, 0]]] },
+      head: { rot: [...L2([22, 20, 10]), [3, [30, 26, 12]], [6, [12, 10, 4]], [9, [6, -8, 0]], [12, [-18, -6, 0], 'L'], [14, [-8, 10, 6]], [17, [6, -10, -6]], [20, [2, 8, 4]],
+        [23, [4, -6, -3]], [26, [0, 0, 0]], ...shake(28)] },
+      arm_r: { rot: [...L2([30, 0, 44]), [4, [44, 0, 64]], [7, [36, 0, 50]], [10, [12, 0, 24]], [12, [-16, 0, 10], 'L'], [14, [12, 0, 6]], [16, [-6, 0, 3]], [19, [3, 0, 0]], [22, [0, 0, 0]]] },
+      arm_l: { rot: [...L2([40, 10, 30]), [4, [52, 12, 50]], [7, [40, 8, 36]], [10, [10, 0, 14]], [12, [-18, 0, 8], 'L'], [14, [14, 0, 4]], [16, [-6, 0, 2]], [19, [3, 0, 0]], [22, [0, 0, 0]]] },
+      leg_r: { rot: [...L2([-6, 0, 3]), [6, [-8, 0, 3]], [10, [-6, 0, 3]], [12, [12, 0, 3], 'L'], [15, [0, 0, 0]]] },
+      leg_l: { rot: [...L2([8, 0, 3]), [4, [14, 0, 4]], [6, [-14, 0, 4]], [9, [-22, 0, 3], 'L'], [11, [-10, 0, 3]], [12, [12, 0, 3], 'L'], [15, [0, 0, 0]]] },
+      walk: [[0, 0, 'L'], [20, 0], [24, 1]],
+      face: [[0, 1], [3, 3], [12, 2], [26, 1], [34, 0]],
+      dust: [[0, 0], [9, 1], [10, 0], [12, 1], [13, 0]],
     };
 
     // Deaths: three front variants were filmed (FLIPS, IG.flip(v)); the user picked tower (2026-09-28). Pivoting on its
@@ -2569,9 +2571,9 @@ function makeHits(RIG) {
       o.len += dt;
       return o;
     };
-    // Big: the fists slam the ground (hit_big up to tick 6), it straightens halfway out of the squat and topples back.
-    const big = Object.assign(shifted(tower, 6), { face: [[0, 1], [6, 2]] });
-    big.dust = [[0, 0], [2, 1], [3, 0], [6, 2], [7, 0], [25, 3], [26, 0]];
+    // Big: the blow throws it back onto its heels (hit_big up to tick 6), and it topples back from there.
+    const big = Object.assign(shifted(tower, 6), { face: [[0, 1], [3, 3], [6, 2]] });
+    big.dust = [[0, 0], [25, 3], [26, 0]];
     ANIMS.death_big = deathClip(ANIMS, 'hit_big', 6, big);
     ANIMS.death_big.dust = big.dust;
     // No hit: it creaks (small twitches) and topples back.

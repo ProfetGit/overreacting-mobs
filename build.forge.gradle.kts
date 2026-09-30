@@ -37,7 +37,7 @@ dependencies {
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 tasks.withType<JavaCompile>().configureEach {
-    javaCompiler = javaToolchains.compilerFor { languageVersion = JavaLanguageVersion.of(26) }
+    javaCompiler = javaToolchains.compilerFor { languageVersion = JavaLanguageVersion.of(27) }
     options.release = 25
     options.encoding = "UTF-8"
 }
