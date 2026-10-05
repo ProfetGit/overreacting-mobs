@@ -1,6 +1,7 @@
 plugins {
     id("dev.kikugie.stonecutter")
     id("net.fabricmc.fabric-loom") version "1.18.2" apply false
+    id("net.fabricmc.fabric-loom-remap") version "1.18.2" apply false
     id("net.neoforged.moddev") version "2.0.147" apply false
     id("net.minecraftforge.gradle") version "7.0.40" apply false
 }

@@ -248,15 +248,54 @@ public final class Pose {
         if (nonZero(pelvisRot)) ps.rotateAround(new Quaternionf().rotationZYX(pelvisRot[2] * DEG, pelvisRot[1] * DEG, pelvisRot[0] * DEG), 0, GOLEM_HIPS, 0);
     }
 
-    /** The quadruped model hooks: the reaction pose now, or after Entity Model Features' animation of the model. */
+    //? if >=1.21.2 {
+    // The quadruped model hooks: the reaction pose now, or after Entity Model Features' animation of the model.
     public static void fromModelHook(Model<?> model, net.minecraft.client.renderer.entity.state.LivingEntityRenderState state) {
         Pose p = ((PoseHolder) state).mobreactions$pose();
         if (io.github.profetgit.mobreactions.compat.Emf.defer(model, p)) return;
         if (p != null) p.apply(model);
     }
 
+    static void touched(Model<?> model) {
+    }
+
+    public static void resetTouched() {
+    }
+    //?} else {
+    /*// The pose of the entity being drawn (LivingEntityRendererMixin sets it around the renderer's render): there is no
+    // render state before 1.21.2.
+    public static Pose current;
+
+    // The model hooks: the reaction pose now, or after Entity Model Features' animation of the model.
+    public static void fromModelHook(Model model) {
+        Pose p = current;
+        if (io.github.profetgit.mobreactions.compat.Emf.defer(model, p)) return;
+        if (p != null) p.apply(model);
+    }
+
+    // Before 1.21.2 a model's parts keep whatever the last frame left in them (later versions reset them at the start of
+    // every setupAnim), and vanilla only rewrites some of the values the reaction adds to (a leg's yRot and zRot, the
+    // head's position, the spider legs' scale), so they would pile up frame after frame. Every model the pose touched is
+    // put back to its rest pose when the entity has been drawn.
+    private static final java.util.ArrayList<Model> touchedModels = new java.util.ArrayList<>();
+
+    static void touched(Model model) {
+        if (!touchedModels.contains(model)) touchedModels.add(model);
+    }
+
+    public static void resetTouched() {
+        for (Model m : touchedModels) {
+            ModelPart root = Roots.of(m);
+            // resetPose is not recursive before 1.21.2
+            if (root != null) root.getAllParts().forEach(ModelPart::resetPose);
+        }
+        touchedModels.clear();
+    }
+    *///?}
+
     /** Applies the pose to a model of any rig (the model hooks, and compat.Emf after an EMF animation). */
     public void apply(Model<?> model) {
+        touched(model);
         if (model instanceof HumanoidModel<?> h) applyParts(h);
         else if (rig == Rig.QUADRUPED) applyQuadruped(model);
         else if (rig == Rig.PET) applyPet(model);

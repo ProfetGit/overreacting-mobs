@@ -8,9 +8,10 @@ VER=${1:?usage: make_world.sh <mc-version>}
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
 META=${MODRINTH_META:-$HOME/.local/share/ModrinthApp/meta}
-VDIR=$(ls -d "$META"/versions/"$VER"-* | head -1)
-JAVA=$(ls -d "$META"/java_versions/zulu25*/bin | head -1)/java
-CP="$(python3 "$ROOT/../ClientCapture/classpath.py" "$VDIR/$(basename "$VDIR").json" "$META/libraries"):$VDIR/$(basename "$VDIR").jar"
+VDIR=$(ls -d "$META"/versions/"$VER"-* | sort -V | tail -1)
+case "$VER" in 1.*) JV=21 ;; *) JV=25 ;; esac
+JAVA=$(ls -d "$META"/java_versions/zulu${JV}*/bin | head -1)/java
+CP="$(python3 "$ROOT/../../tools/ClientCapture/classpath.py" "$VDIR/$(basename "$VDIR").json" "$META/libraries"):$VDIR/$(basename "$VDIR").jar"
 SRV="$HERE/.work/server-$VER"
 rm -rf "$SRV" && mkdir -p "$SRV"
 echo "eula=true" > "$SRV/eula.txt"

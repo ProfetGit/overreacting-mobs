@@ -4,8 +4,10 @@ import io.github.profetgit.mobreactions.MobReactions;
 import io.github.profetgit.mobreactions.anim.Clip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+//? if >=1.21.2 {
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+//?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -230,22 +232,190 @@ public final class Hits {
     /** The death is over and the server already removed the mob: the vanilla poof, then the removal it held back. */
     private static void poof(LivingEntity e, ReactionHolder h, Reaction r) {
         h.mobreactions$setReaction(null);
+        //? if >=1.21.2 {
         e.makePoofParticles();
+        //?} else {
+        /*// private before 1.21.2
+        for (int i = 0; i < 20; i++) {
+            double dx = e.getRandom().nextGaussian() * 0.02, dy = e.getRandom().nextGaussian() * 0.02, dz = e.getRandom().nextGaussian() * 0.02;
+            e.level().addParticle(ParticleTypes.POOF, e.getRandomX(1.0) - dx * 10, e.getRandomY() - dy * 10, e.getRandomZ(1.0) - dz * 10, dx, dy, dz);
+        }
+        *///?}
         if (e.level() instanceof ClientLevel level) level.removeEntity(e.getId(), r.removal);
     }
 
+    //? if >=1.21.2 {
     public static void extract(LivingEntity e, LivingEntityRenderState state, float partial) {
-        PoseHolder ph = (PoseHolder) state;
+        extract(e, new StateFrame(state), partial);
+    }
+
+    // The render state's side of a frame.
+    private static final class StateFrame implements Frame {
+        final LivingEntityRenderState s;
+
+        StateFrame(LivingEntityRenderState s) {
+            this.s = s;
+        }
+
+        public double x() {
+            return s.x;
+        }
+
+        public double y() {
+            return s.y;
+        }
+
+        public double z() {
+            return s.z;
+        }
+
+        public void pos(double x, double y, double z) {
+            s.x = x;
+            s.y = y;
+            s.z = z;
+        }
+
+        public void red(boolean on) {
+            s.hasRedOverlay = on;
+        }
+
+        public void noTipOver(float bodyRot) {
+            s.deathTime = 0;
+            s.bodyRot = bodyRot;
+            if (s instanceof HumanoidRenderState hs) hs.swimAmount = 0;
+        }
+
+        public float boxH() {
+            return s.boundingBoxHeight;
+        }
+
+        public float boxW() {
+            return s.boundingBoxWidth;
+        }
+
+        public void box(float w, float h) {
+            s.boundingBoxWidth = w;
+            s.boundingBoxHeight = h;
+        }
+
+        public void pose(Pose p) {
+            ((PoseHolder) s).mobreactions$setPose(p);
+        }
+    }
+    //?}
+
+    /** What an extraction reads and changes of the thing being drawn (the render state, or the 1.21.1 renderer's own fields). */
+    interface Frame {
+        double x();
+
+        double y();
+
+        double z();
+
+        void pos(double x, double y, double z);
+
+        void red(boolean on);
+
+        /** A death plays without vanilla's tip-over, keeping the heading it died with. */
+        void noTipOver(float bodyRot);
+
+        float boxH();
+
+        float boxW();
+
+        void box(float w, float h);
+
+        void pose(Pose p);
+    }
+
+    //? if <1.21.2 {
+    /*// Before 1.21.2 there is no render state: the renderer hooks (LivingEntityRendererMixin) ask for the pose and read what
+    // the extraction wanted changed from here, for the entity being drawn.
+    public static final class LegacyFrame implements Frame {
+        double x, y, z;
+        // where the body is drawn relative to where the entity is
+        public double dx, dy, dz;
+        // vanilla's red overlay forced on or off (null: leave it)
+        public Boolean red;
+        public boolean noTip;
+        public float bodyRot;
+        public Pose pose;
+
+        void begin(double x, double y, double z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            dx = dy = dz = 0;
+            red = null;
+            noTip = false;
+            pose = null;
+        }
+
+        public double x() {
+            return x;
+        }
+
+        public double y() {
+            return y;
+        }
+
+        public double z() {
+            return z;
+        }
+
+        public void pos(double nx, double ny, double nz) {
+            dx = nx - x;
+            dy = ny - y;
+            dz = nz - z;
+        }
+
+        public void red(boolean on) {
+            red = on;
+        }
+
+        public void noTipOver(float bodyRot) {
+            noTip = true;
+            this.bodyRot = bodyRot;
+        }
+
+        public float boxH() {
+            return 0;
+        }
+
+        public float boxW() {
+            return 0;
+        }
+
+        public void box(float w, float h) {
+        }
+
+        public void pose(Pose p) {
+            pose = p;
+        }
+    }
+
+    public static final LegacyFrame FRAME = new LegacyFrame();
+
+    // The reaction pose of the entity about to be drawn (or null), and FRAME's offsets and overlay.
+    public static Pose extractLegacy(LivingEntity e, float partial) {
+        FRAME.begin(net.minecraft.util.Mth.lerp(partial, e.xOld, e.getX()), net.minecraft.util.Mth.lerp(partial, e.yOld, e.getY()),
+            net.minecraft.util.Mth.lerp(partial, e.zOld, e.getZ()));
+        extract(e, FRAME, partial);
+        return FRAME.pose;
+    }
+    *///?}
+
+    static void extract(LivingEntity e, Frame state, float partial) {
         Reaction r = ((ReactionHolder) e).mobreactions$reaction();
         if (r == null || (e.isDeadOrDying() && !r.dying)) {
-            ph.mobreactions$setPose(null);
+            state.pose(null);
             return;
         }
         resolve(e, r);
         float t = r.time(partial);
         if (t >= r.clip.length) {
             if (!r.dying) {
-                ph.mobreactions$setPose(null);
+                state.pose(null);
                 return;
             }
             t = r.clip.length;
@@ -263,7 +433,7 @@ public final class Hits {
         float since = e.tickCount + partial - r.firstAge;
         if (r.source != null) offset(r, state, t);
         // a hit stays red until it lands, like a death, instead of vanilla's fixed 10 ticks that end mid-air
-        if (r.source != null && !r.dying && r.clip.land > 0 && t < r.clip.land) state.hasRedOverlay = true;
+        if (r.source != null && !r.dying && r.clip.land > 0 && t < r.clip.land) state.red(true);
         if (r.impact) {
             float w = since < FLASH_PEAK ? 1 : 1 - (since - FLASH_PEAK) / FLASH_FADE;
             p.flash = w >= FLASH_MIN ? w : 0;
@@ -283,18 +453,15 @@ public final class Hits {
             p.calm = Math.min(1, t / CALM);
             p.dead = true;
             // no vanilla tip-over, the body keeps the heading it died with, and the red tint ends when it hits the ground
-            state.deathTime = 0;
-            state.bodyRot = r.bodyYaw;
-            state.hasRedOverlay = t < (r.clip.land > 0 ? r.clip.land : RED);
-            if (state instanceof HumanoidRenderState hs) hs.swimAmount = 0;
+            state.noTipOver(r.bodyYaw);
+            state.red(t < (r.clip.land > 0 ? r.clip.land : RED));
             if (r.clip.down > 0) {
                 // a burning body: the flames follow it down instead of standing over it as a column
                 float u = Math.clamp((t - r.clip.down + GOING_DOWN) / GOING_DOWN, 0F, 1F);
-                state.boundingBoxHeight += (r.clip.rest - state.boundingBoxHeight) * u;
-                state.boundingBoxWidth += (DOWN_WIDTH - state.boundingBoxWidth) * u;
+                state.box(state.boxW() + (DOWN_WIDTH - state.boxW()) * u, state.boxH() + (r.clip.rest - state.boxH()) * u);
             }
         }
-        ph.mobreactions$setPose(p);
+        state.pose(p);
     }
 
     /**
@@ -303,23 +470,24 @@ public final class Hits {
      * then the offset bleeds off as the drawn knockback carries it away. Arc: the flight height follows a parabola on
      * the clip clock, which reaches the landing key exactly at touchdown, instead of vanilla's straight segments.
      */
-    private static void offset(Reaction r, LivingEntityRenderState s, float t) {
+    private static void offset(Reaction r, Frame f, float t) {
+        double sx = f.x(), sy = f.y(), sz = f.z();
         if (!r.anchored) {
             r.anchored = true;
-            r.hx = s.x;
-            r.hy = s.y;
-            r.hz = s.z;
-            r.lastX = s.x;
-            r.lastZ = s.z;
+            r.hx = sx;
+            r.hy = sy;
+            r.hz = sz;
+            r.lastX = sx;
+            r.lastZ = sz;
         }
         float land = r.clip.land;
         if (!r.released) {
-            r.ox = r.hx - s.x;
-            r.oz = r.hz - s.z;
+            r.ox = r.hx - sx;
+            r.oz = r.hz - sz;
         } else {
             double m = Math.hypot(r.ox, r.oz);
             if (m > 1e-5) {
-                double left = Math.max(0, m - BLEED * Math.hypot(s.x - r.lastX, s.z - r.lastZ));
+                double left = Math.max(0, m - BLEED * Math.hypot(sx - r.lastX, sz - r.lastZ));
                 // no hop to ride on (knockback resistance, water): it fades out from the release instead
                 boolean hop = land > 0 && !r.noHop;
                 if (!hop || t >= land) {
@@ -330,22 +498,22 @@ public final class Hits {
                 r.oz *= left / m;
             }
         }
-        r.lastX = s.x;
-        r.lastZ = s.z;
-        s.x += r.ox;
-        s.z += r.oz;
-        if (r.released && !r.noHop && land > 0 && t < land && r.tRel < land && s.y > r.hy - 0.05) {
+        r.lastX = sx;
+        r.lastZ = sz;
+        sx += r.ox;
+        sz += r.oz;
+        if (r.released && !r.noHop && land > 0 && t < land && r.tRel < land && sy > r.hy - 0.05) {
             float u = Math.clamp((t - r.tRel) / (land - r.tRel), 0F, 1F);
             double want = r.hy + ARC_H * 4 * u * (1 - u);
-            s.y += Math.clamp(want - s.y, -ARC_MAX, ARC_MAX);
+            sy += Math.clamp(want - sy, -ARC_MAX, ARC_MAX);
         }
+        f.pos(sx, sy, sz);
     }
 
-    /**
-     * A reacting pet stands up for the hit: a sitting wolf or cat, a sleeping, sitting, crouching or pouncing fox (awake:
-     * the sleeping texture has its eyes shut) and a lying or loafing cat play the reaction from the standing pose. The
-     * server stands most of them up on a hit anyway.
-     */
+    //? if >=1.21.2 {
+        // A reacting pet stands up for the hit: a sitting wolf or cat, a sleeping, sitting, crouching or pouncing fox (awake:
+    // the sleeping texture has its eyes shut) and a lying or loafing cat play the reaction from the standing pose. The
+    // server stands most of them up on a hit anyway.
     public static void standUp(net.minecraft.client.renderer.entity.state.EntityRenderState s) {
         if (!(s instanceof LivingEntityRenderState l) || ((PoseHolder) l).mobreactions$pose() == null) return;
         if (s instanceof net.minecraft.client.renderer.entity.state.WolfRenderState w) {
@@ -359,6 +527,7 @@ public final class Hits {
             if (c instanceof net.minecraft.client.renderer.entity.state.CatRenderState cat) cat.isLyingOnTopOfSleepingPlayer = false;
         }
     }
+    //?}
 
     /**
      * The clip's dust events that fall in this tick (the iron golem's steps and slams, see Clip.events): 1 = both feet,

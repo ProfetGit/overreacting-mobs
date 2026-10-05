@@ -1,5 +1,5 @@
 plugins {
-    id("net.fabricmc.fabric-loom")
+    id("net.fabricmc.fabric-loom-remap")
 }
 
 val mc = stonecutter.current.version
@@ -11,7 +11,9 @@ base.archivesName = modId
 
 dependencies {
     minecraft("com.mojang:minecraft:$mc")
-    implementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
+    mappings(loom.officialMojangMappings())
+    annotationProcessor("net.fabricmc:sponge-mixin:0.17.4+mixin.0.8.7")
+    modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
     compileOnly(files(rootProject.layout.buildDirectory.dir("emf-stubs")).builtBy(rootProject.tasks.named("emfStubs")))
 
     testImplementation(platform("org.junit:junit-bom:5.13.4"))
@@ -21,6 +23,7 @@ dependencies {
 }
 
 loom {
+    mixin.useLegacyMixinAp = true
     runs.named("client") {
         client()
         runDir = "run"
@@ -29,12 +32,12 @@ loom {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release = 25
+    options.release = 21
     options.encoding = "UTF-8"
 }
 
@@ -54,7 +57,7 @@ tasks.processResources {
         "homepage" to project.property("mod.homepage"),
         "fabric_loader" to project.property("deps.fabric_loader"),
         "mc_range" to ((findProperty("deps.mc_range") as String?) ?: "~$mc"),
-        "java" to "25",
+        "java" to "21",
     )
     inputs.properties(props)
     filesMatching("fabric.mod.json") { expand(props) }
@@ -63,3 +66,6 @@ tasks.processResources {
 tasks.named<Jar>("jar") {
     from(rootProject.file("LICENSE"))
 }
+
+extra["mcVersion"] = mc
+apply(from = rootProject.file("../../tools/Backport/renames.gradle.kts"))

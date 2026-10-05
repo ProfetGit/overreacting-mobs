@@ -1,5 +1,6 @@
 package io.github.profetgit.mobreactions.mixin;
 
+//? if >=1.21.2 {
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.profetgit.mobreactions.face.Faces;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -11,7 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-/** Glowing eyes drawn over the face (the spider's) show the expression too (see Faces.glow). */
+// Glowing eyes drawn over the face (the spider's) show the expression too (see Faces.glow).
 @Mixin(EyesLayer.class)
 public abstract class EyesLayerMixin {
     @Redirect(method = "submit", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/EyesLayer;renderType()Lnet/minecraft/client/renderer/rendertype/RenderType;"))
@@ -20,3 +21,25 @@ public abstract class EyesLayerMixin {
         return state instanceof LivingEntityRenderState s ? Faces.glow(s, type) : type;
     }
 }
+//?} else {
+/*import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.profetgit.mobreactions.face.Faces;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.layers.EyesLayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+// Glowing eyes drawn over the face (the spider's) show the expression too (see Faces.glow).
+@Mixin(EyesLayer.class)
+public abstract class EyesLayerMixin {
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/EyesLayer;renderType()Lnet/minecraft/client/renderer/RenderType;"))
+    private RenderType mobreactions$glow(EyesLayer<?, ?> layer, PoseStack poseStack, MultiBufferSource buffer, int light, Entity entity, float a, float b, float c, float d, float e, float f) {
+        RenderType type = layer.renderType();
+        return entity instanceof LivingEntity living ? Faces.glow(living, type) : type;
+    }
+}
+*///?}

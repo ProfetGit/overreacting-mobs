@@ -8,7 +8,7 @@
 // step scale keys pick which one shows. Flat things (sword, FX) live in the `screen` group, tilted to face the camera.
 var OM = (function () {
   const fs = require('fs');
-  const DIR = '/home/emppu/Projects/Minecraft Datapacks/MobReactions/dev/icon/';
+  const DIR = '/home/emppu/Projects/Minecraft Datapacks/mods/MobReactions/dev/icon/';
   const TEX = DIR + 'sprites/';
   const FPS = 25, DT = 1 / FPS, LEN = 3.2;
   const CAM_POS = [0, 60, 104], CAM_TARGET = [0, 16, 0];

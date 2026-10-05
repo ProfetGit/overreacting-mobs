@@ -4,7 +4,7 @@
 -- shading:false. Expressions are separate 8x8 face planes (features only) that sit on the head's front.
 -- fx_star, fx_ring, fx_puff, fx_spark and fx_smear are copied from Veinminer's sprites (same author).
 dofile("/home/emppu/Projects/Minecraft Datapacks/.claude/skills/pack-icon-animation/assets/pixel_art.lua")
-local OUT = "/home/emppu/Projects/Minecraft Datapacks/MobReactions/dev/icon/sprites/"
+local OUT = "/home/emppu/Projects/Minecraft Datapacks/mods/MobReactions/dev/icon/sprites/"
 local pc = app.pixelColor
 
 local skin = { a = "#1E3A1C", b = "#2E5A26", c = "#3F7A30", d = "#56993A", e = "#72B84A", f = "#98D468" }

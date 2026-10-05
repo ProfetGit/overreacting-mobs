@@ -1,0 +1,443 @@
+[
+ {
+  "regex": "\\.getDeltaTracker\\(\\)",
+  "to": ".getTimer()",
+  "when": "<1.21.2"
+ },
+ {
+  "regex": "getInitialPose\\(\\)\\.(x|y|z)\\(\\)",
+  "to": "getInitialPose().$1",
+  "when": "<1.21.2",
+  "groups": "1"
+ },
+ {
+  "regex": "\\b(rest|lr|br|bi|li)\\.(x|y|z|xRot|yRot|zRot)\\(\\)",
+  "to": "$1.$2",
+  "when": "<1.21.2",
+  "files": "^Pose\\.java$",
+  "groups": "1"
+ },
+ {
+  "regex": "\\bpose\\.(xRot|yRot|zRot|x|y)\\(\\)",
+  "to": "pose.$1",
+  "when": "<1.21.2",
+  "files": "^Quad\\.java$",
+  "groups": "1"
+ },
+ {
+  "regex": "pose\\.xScale\\(\\), pose\\.yScale\\(\\), pose\\.zScale\\(\\)",
+  "to": "p.xScale, p.yScale, p.zScale",
+  "when": "<1.21.2",
+  "files": "^Quad\\.java$"
+ },
+ {
+  "regex": "\\ba\\.z\\(\\)",
+  "to": "a.z",
+  "when": "<1.21.2",
+  "files": "^Arachnid\\.java$"
+ },
+ {
+  "regex": "a\\.zScale\\(\\)",
+  "to": "abdomen.zScale",
+  "when": "<1.21.2",
+  "files": "^Arachnid\\.java$"
+ },
+ {
+  "regex": "\\b(m|model)\\.root\\(\\)",
+  "to": "io.github.profetgit.mobreactions.react.Roots.of($1)",
+  "when": "<1.21.2",
+  "groups": "1"
+ },
+ {
+  "regex": "double fall = pl\\.fallDistance;",
+  "to": "double fall = 0.6;",
+  "when": "<1.21.5",
+  "files": "^Director\\.java$"
+ },
+ {
+  "regex": "pl\\.fallDistance > 0\\.1",
+  "to": "pl.getDeltaMovement().y < -0.1",
+  "when": "<1.21.5",
+  "files": "^Director\\.java$"
+ },
+ {
+  "regex": ",equipment:\\{head:\\{id:\\\\\"minecraft:stick\\\\\",count:1,components:\\{\\\\\"minecraft:item_model\\\\\":\\\\\"minecraft:air\\\\\"\\}\\}\"\\ \\+\\ weapon\\(\\)\\ \\+\\ \"\\},drop_chances:\\{head:0f,mainhand:0f\\}\\}\"",
+  "to": ",ArmorItems:[{},{},{},{id:\\\"minecraft:stick\\\",count:1,components:{\\\"minecraft:item_model\\\":\\\"minecraft:air\\\"}}],HandItems:[\" + weapon() + \",{}],ArmorDropChances:[0f,0f,0f,0f],HandDropChances:[0f,0f]}\"",
+  "when": "<1.21.5",
+  "files": "^Director\\.java$"
+ },
+ {
+  "regex": "return\\ item\\ ==\\ null\\ \\?\\ \"\"\\ :\\ \",mainhand:\\{id:\\\\\"minecraft:\"\\ \\+\\ item\\ \\+\\ \"\\\\\",count:1\\}\";",
+  "to": "return item == null ? \"{}\" : \"{id:\\\"minecraft:\" + item + \"\\\",count:1}\";",
+  "when": "<1.21.5",
+  "files": "^Director\\.java$"
+ },
+ {
+  "regex": "\"attribute \" \\+ p \\+ \" minecraft:knockback_resistance base set 1\"",
+  "to": "\"attribute \" + p + \" minecraft:knockback_resistance base set 1\", \"attribute \" + p + \" minecraft:entity_interaction_range base set 8\"",
+  "when": "<1.21.9",
+  "files": "^Director\\.java$"
+ },
+ {
+  "regex": "gamerule disable_raids true",
+  "to": "gamerule raids false",
+  "when": "=1.21.11"
+ },
+ {
+  "regex": "gamerule disable_raids true",
+  "to": "gamerule disableRaids true",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "gamerule advance_time",
+  "to": "gamerule doDaylightCycle",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "gamerule advance_weather",
+  "to": "gamerule doWeatherCycle",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "gamerule spawn_mobs",
+  "to": "gamerule doMobSpawning",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "gamerule mob_griefing",
+  "to": "gamerule mobGriefing",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "\"gamerule spawn_monsters false\",\\s*",
+  "to": "",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "new DynamicTexture\\(\\(\\) -> \"Mob Reactions \" \\+ id, img\\)",
+  "to": "new DynamicTexture(img)",
+  "when": "<1.21.5"
+ },
+ {
+  "regex": "sp\\.fallDistance = fall;",
+  "to": "sp.fallDistance = (float) fall;",
+  "when": "<1.21.5",
+  "files": "^Director\\.java$"
+ },
+ {
+  "regex": "Screenshot\\.takeScreenshot\\(mc\\.getMainRenderTarget\\(\\),",
+  "to": "io.github.profetgit.mobreactions.demo.DemoCompat.screenshot(mc.getMainRenderTarget(),",
+  "when": "<1.21.5",
+  "files": "^Director\\.java$"
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.animal\\.cow\\.AbstractCow",
+  "to": "net.minecraft.world.entity.animal.Cow",
+  "when": "<1.21.5"
+ },
+ {
+  "from": "AbstractCow",
+  "to": "Cow",
+  "when": "<1.21.5"
+ },
+ {
+  "regex": "getGameProfile\\(\\)\\.name\\(\\)",
+  "to": "getGameProfile().getName()",
+  "when": "<1.21.9"
+ },
+ {
+  "regex": "!state\\.carriedBlock\\.isEmpty\\(\\)",
+  "to": "state.carriedBlock != null",
+  "when": "<26.2"
+ },
+ {
+  "regex": "state\\.carriedBlock\\.isEmpty\\(\\)",
+  "to": "state.carriedBlock == null",
+  "when": "<26.2"
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.animal\\.feline\\.AdultFelineModel",
+  "to": "net.minecraft.client.model.animal.feline.FelineModel",
+  "when": "<26.2"
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.animal\\.feline\\.FelineModel\\b",
+  "to": "net.minecraft.client.model.FelineModel",
+  "when": "<1.21.11"
+ },
+ {
+  "from": "AdultFelineModel",
+  "to": "FelineModel",
+  "when": "<26.2"
+ },
+ {
+  "regex": "Model<\\?> model,",
+  "to": "net.minecraft.client.model.EntityModel<?> model,",
+  "when": "<1.21.9",
+  "files": "^RenderLayerMixin\\.java$"
+ },
+ {
+  "regex": "int color, int order\\)",
+  "to": "int color)",
+  "when": "<1.21.9",
+  "files": "^RenderLayerMixin\\.java$"
+ },
+ {
+  "regex": "import net\\.minecraft\\.client\\.renderer\\.SubmitNodeCollector;",
+  "to": "import net.minecraft.client.renderer.MultiBufferSource;",
+  "when": "<1.21.9"
+ },
+ {
+  "from": "SubmitNodeCollector",
+  "to": "MultiBufferSource",
+  "when": "<1.21.9"
+ },
+ {
+  "regex": "method = \"submit\"",
+  "to": "method = \"render\"",
+  "when": "<1.21.9",
+  "files": "^EyesLayerMixin\\.java$"
+ },
+ {
+  "regex": "method = \"submit\\(",
+  "to": "method = \"render(",
+  "when": "<1.21.9",
+  "files": "^CarriedBlockLayerMixin\\.java$"
+ },
+ {
+  "regex": "renderer/rendertype/RenderType;",
+  "to": "renderer/RenderType;",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.animal\\.fox\\.FoxModel\\b",
+  "to": "net.minecraft.client.model.FoxModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.animal\\.goat\\.GoatModel\\b",
+  "to": "net.minecraft.client.model.GoatModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.animal\\.golem\\.IronGolemModel\\b",
+  "to": "net.minecraft.client.model.IronGolemModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.animal\\.panda\\.PandaModel\\b",
+  "to": "net.minecraft.client.model.PandaModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.animal\\.polarbear\\.PolarBearModel\\b",
+  "to": "net.minecraft.client.model.PolarBearModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.animal\\.sheep\\.SheepFurModel\\b",
+  "to": "net.minecraft.client.model.SheepFurModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.animal\\.sheep\\.SheepModel\\b",
+  "to": "net.minecraft.client.model.SheepModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.animal\\.wolf\\.WolfModel\\b",
+  "to": "net.minecraft.client.model.WolfModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.monster\\.creeper\\.CreeperModel\\b",
+  "to": "net.minecraft.client.model.CreeperModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.monster\\.enderman\\.EndermanModel\\b",
+  "to": "net.minecraft.client.model.EndermanModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.monster\\.illager\\.IllagerModel\\b",
+  "to": "net.minecraft.client.model.IllagerModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.monster\\.spider\\.SpiderModel\\b",
+  "to": "net.minecraft.client.model.SpiderModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.monster\\.witch\\.WitchModel\\b",
+  "to": "net.minecraft.client.model.WitchModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.model\\.npc\\.VillagerModel\\b",
+  "to": "net.minecraft.client.model.VillagerModel",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.renderer\\.rendertype\\.RenderType\\b",
+  "to": "net.minecraft.client.renderer.RenderType",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.animal\\.cow\\.AbstractCow\\b",
+  "to": "net.minecraft.world.entity.animal.AbstractCow",
+  "when": "=1.21.8",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.animal\\.panda\\.Panda\\b",
+  "to": "net.minecraft.world.entity.animal.Panda",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.animal\\.pig\\.Pig\\b",
+  "to": "net.minecraft.world.entity.animal.Pig",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.animal\\.polarbear\\.PolarBear\\b",
+  "to": "net.minecraft.world.entity.animal.PolarBear",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.animal\\.sheep\\.Sheep\\b",
+  "to": "net.minecraft.world.entity.animal.Sheep",
+  "when": "=1.21.4",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.animal\\.sheep\\.Sheep\\b",
+  "to": "net.minecraft.world.entity.animal.Sheep",
+  "when": "=1.21.1",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.monster\\.illager\\.AbstractIllager\\b",
+  "to": "net.minecraft.world.entity.monster.AbstractIllager",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.monster\\.skeleton\\.AbstractSkeleton\\b",
+  "to": "net.minecraft.world.entity.monster.AbstractSkeleton",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.monster\\.spider\\.Spider\\b",
+  "to": "net.minecraft.world.entity.monster.Spider",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.monster\\.zombie\\.Zombie\\b",
+  "to": "net.minecraft.world.entity.monster.Zombie",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.npc\\.villager\\.AbstractVillager\\b",
+  "to": "net.minecraft.world.entity.npc.AbstractVillager",
+  "when": "<1.21.11",
+  "gen": true
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.renderer\\.state\\.level\\.",
+  "to": "net.minecraft.client.renderer.state.",
+  "when": "<26.2"
+ },
+ {
+  "regex": "net/minecraft/client/renderer/state/level/",
+  "to": "net/minecraft/client/renderer/state/",
+  "when": "<26.2"
+ },
+ {
+  "regex": "import net\\.minecraft\\.client\\.renderer\\.rendertype\\.RenderTypes;",
+  "to": "import net.minecraft.client.renderer.RenderType;",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.renderer\\.rendertype\\.RenderType\\b",
+  "to": "net.minecraft.client.renderer.RenderType",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "\\bRenderTypes\\.",
+  "to": "RenderType.",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "import net\\.minecraft\\.world\\.entity\\.EntityTypes;",
+  "to": "import net.minecraft.world.entity.EntityType;",
+  "when": "<26.2"
+ },
+ {
+  "regex": "\\bEntityTypes\\.",
+  "to": "EntityType.",
+  "when": "<26.2"
+ },
+ {
+  "regex": "net\\.minecraft\\.world\\.entity\\.animal\\.cow\\.AbstractCow",
+  "to": "net.minecraft.world.entity.animal.AbstractCow",
+  "when": "=1.21.8"
+ },
+ {
+  "regex": "\\bModel<\\?>",
+  "to": "Model",
+  "when": "<1.21.9"
+ },
+ {
+  "regex": ",components:\\{\\\\\"minecraft:item_model\\\\\":\\\\\"minecraft:air\\\\\"\\}",
+  "to": "",
+  "when": "<1.21.2",
+  "files": "^Director\\.java$"
+ },
+ {
+  "regex": "minecraft:max_health\\b",
+  "to": "minecraft:generic.max_health",
+  "when": "<1.21.2",
+  "files": "^Director\\.java$"
+ },
+ {
+  "regex": "minecraft:movement_speed\\b",
+  "to": "minecraft:generic.movement_speed",
+  "when": "<1.21.2",
+  "files": "^Director\\.java$"
+ },
+ {
+  "regex": "minecraft:knockback_resistance\\b",
+  "to": "minecraft:generic.knockback_resistance",
+  "when": "<1.21.2",
+  "files": "^Director\\.java$"
+ },
+ {
+  "regex": "minecraft:entity_interaction_range",
+  "to": "minecraft:player.entity_interaction_range",
+  "when": "<1.21.2",
+  "files": "^Director\\.java$"
+ }
+]

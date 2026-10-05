@@ -6,7 +6,7 @@
 # and the checks to <out>/results.json.
 # Usage: run.sh <mc-version> <out-dir> [scenes, comma separated]
 # Env: LOADER=fabric|neoforge|forge (default fabric; Forge and NeoForge come from the installs Tidy Pockets' self-test
-#      made, TidyPockets/dev/selftest/install_loaders.sh), MOB=<any supported mob, e.g. skeleton, piglin_brute, cow>, MODS="a.jar:b.jar" adds mods
+#      made, mods/TidyPockets/dev/selftest/install_loaders.sh), MOB=<any supported mob, e.g. skeleton, piglin_brute, cow>, MODS="a.jar:b.jar" adds mods
 #      (e.g. EMF + ETF), PACKS="x.zip:y.zip" adds resource packs and enables them, FRAMES=0 (checks only, no
 #      screenshots; a full run with frames is about 5 GB), CAM=face (look the mob in the face), WORK_TAG=x (own game dir, so runs of one loader can go in
 #      parallel), SKIP_BUILD=1, CLIPS=<dir> (clip JSONs there replace the bundled ones; <dir>/villager/ for the villager rig),
@@ -37,7 +37,7 @@ for m in "${M[@]}"; do [ -n "$m" ] && EXTRA+=(--mod "$m"); done
 IFS=: read -r -a P <<< "${PACKS:-}"
 for p in "${P[@]}"; do [ -n "$p" ] && EXTRA+=(--pack "$p"); done
 set +e
-python3 "$ROOT/../ModTest/client.py" "$VER" "$LOADER" "$OUT" --game "$GAME" --jar "$JAR" --world "$WORLD" "${EXTRA[@]}" \
+python3 "$ROOT/../../tools/ModTest/client.py" "$VER" "$LOADER" "$OUT" --game "$GAME" --jar "$JAR" --world "$WORLD" "${EXTRA[@]}" \
     --user ReactCam --opt fps=120 --opt volume=0.0 --opt render_distance=6 \
     --log-errors 'ERROR\]: mobreactions\.mixins\.json|Mob Reactions: .*(failed|cannot)' \
     -D "mobreactions.demo=$OUT" -D "mobreactions.demo.scenes=$SCENES" -D "mobreactions.demo.mob=$MOB" \

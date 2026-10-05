@@ -49,7 +49,7 @@
 function makeHits(RIG) {
   const fs = require('fs');
   const V = RIG === 'villager', Q = RIG === 'quadruped', S = RIG === 'spider', C = RIG === 'creeper', E = RIG === 'enderman', P = RIG === 'pet', IG = RIG === 'golem';
-  const ROOT = '/home/emppu/Projects/Minecraft Datapacks/MobReactions/';
+  const ROOT = '/home/emppu/Projects/Minecraft Datapacks/mods/MobReactions/';
   const DIR = ROOT + 'dev/anim/';
   const OUT = DIR + (V ? 'villager/' : Q ? 'quadruped/' : S ? 'spider/' : C ? 'creeper/' : E ? 'enderman/' : P ? 'pet/' : IG ? 'golem/' : 'hits/');
   const CLIPS = ROOT + 'src/main/resources/assets/mobreactions/reactions/' + (V ? 'villager/' : Q ? 'quadruped/' : S ? 'spider/' : C ? 'creeper/' : E ? 'enderman/' : P ? 'pet/' : IG ? 'golem/' : 'humanoid/');

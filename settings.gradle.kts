@@ -18,6 +18,12 @@ stonecutter {
         fun target(mc: String, vararg loaders: String) =
             loaders.forEach { version("$mc-$it", mc).buildscript = "build.$it.gradle.kts" }
 
+        fun legacy(mc: String) = version("$mc-fabric", mc).apply { buildscript = "build.fabric-legacy.gradle.kts" }
+
+        legacy("1.21.11")
+        legacy("1.21.8")
+        legacy("1.21.4")
+        legacy("1.21.1")
         target("26.2", "fabric", "neoforge", "forge")
         target("26.3", "fabric", "neoforge", "forge")
         vcsVersion = "26.3-fabric"

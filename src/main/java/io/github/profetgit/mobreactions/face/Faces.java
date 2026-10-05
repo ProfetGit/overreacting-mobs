@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.client.Minecraft;
+//? if >=1.21.2 {
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+//?}
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -103,51 +105,88 @@ public final class Faces {
         dirty = true;
     }
 
-    /** The texture a mob's model is drawn with (LivingEntityRenderer.getRenderType): its expression, if one shows. */
+    // Baby mobs have textures of their own from 26.x on (checked in the jars: none in 1.21.x); before, a baby is the adult's texture on a smaller model.
+    private static final boolean BABY_TEXTURES = //? if >=26.2 {
+        true;
+        //?} else {
+        /*false;
+        *///?}
+
+    //? if >=1.21.2 {
+    // The texture a mob's model is drawn with (LivingEntityRenderer.getRenderType): its expression, if one shows.
     public static Identifier base(LivingEntityRenderState state, Identifier texture) {
-        int face = face(state);
+        return base(((PoseHolder) state).mobreactions$pose(), typeOf(state), state.isBaby, texture);
+    }
+
+    // A layer drawn over the model with the same UVs (RenderLayer.coloredCutoutModelCopyLayerRender). A layer that
+    // draws its own eyes (the bogged's) gets the expression painted on; one with holes where the eyes are (the
+    // drowned's outer layer) gets the expression's pixels cleared, so the face underneath shows through.
+    public static Identifier layer(LivingEntityRenderState state, Identifier texture) {
+        return layer(((PoseHolder) state).mobreactions$pose(), typeOf(state), state.isBaby, texture);
+    }
+
+    // A glowing eyes layer (EyesLayer.submit): for a mob whose spec names its eyes texture, the expression's copy of it, so
+    // the eyes that glow over the face (the spider's) squint and cross with it: erased eyes turn transparent, the ink glows.
+    public static RenderType glow(LivingEntityRenderState state, RenderType type) {
+        return glow(((PoseHolder) state).mobreactions$pose(), typeOf(state), state.isBaby, type);
+    }
+
+    private static net.minecraft.world.entity.EntityType<?> typeOf(LivingEntityRenderState state) {
+        //? if >=1.21.5 {
+        return state.entityType;
+        //?} else {
+        /*return ((PoseHolder) state).mobreactions$type();
+        *///?}
+    }
+    //?} else {
+    /*// Before 1.21.2 there is no render state: the entity being drawn and Pose.current stand in for it.
+    public static Identifier base(net.minecraft.world.entity.LivingEntity e, Identifier texture) {
+        return base(Pose.current, e.getType(), e.isBaby(), texture);
+    }
+
+    public static Identifier layer(net.minecraft.world.entity.LivingEntity e, Identifier texture) {
+        return layer(Pose.current, e.getType(), e.isBaby(), texture);
+    }
+
+    public static RenderType glow(net.minecraft.world.entity.LivingEntity e, RenderType type) {
+        return glow(Pose.current, e.getType(), e.isBaby(), type);
+    }
+    *///?}
+
+    private static Identifier base(Pose pose, net.minecraft.world.entity.EntityType<?> type, boolean baby, Identifier texture) {
+        int face = face(pose);
         if (face == 0 || texture == null) return texture;
-        Identifier id = variants(CACHE, texture, spec(state), Use.BASE)[face];
+        Identifier id = variants(CACHE, texture, spec(type, baby), Use.BASE)[face];
         if (id == null) return texture;
         swapped++;
         return id;
     }
 
-    /**
-     * A layer drawn over the model with the same UVs (RenderLayer.coloredCutoutModelCopyLayerRender). A layer that
-     * draws its own eyes (the bogged's) gets the expression painted on; one with holes where the eyes are (the
-     * drowned's outer layer) gets the expression's pixels cleared, so the face underneath shows through.
-     */
-    public static Identifier layer(LivingEntityRenderState state, Identifier texture) {
-        int face = face(state);
+    private static Identifier layer(Pose pose, net.minecraft.world.entity.EntityType<?> type, boolean baby, Identifier texture) {
+        int face = face(pose);
         if (face == 0 || texture == null) return texture;
-        Spec spec = spec(state);
+        Spec spec = spec(type, baby);
         if (!spec.layers()) return texture;
         Identifier id = variants(LAYERS, texture, spec, Use.LAYER)[face];
         return id != null ? id : texture;
     }
 
-    /**
-     * A glowing eyes layer (EyesLayer.submit): for a mob whose spec names its eyes texture, the expression's copy of it, so
-     * the eyes that glow over the face (the spider's) squint and cross with it: erased eyes turn transparent, the ink glows.
-     */
-    public static RenderType glow(LivingEntityRenderState state, RenderType type) {
-        int face = face(state);
-        if (face == 0) return type;
-        Spec spec = spec(state);
-        if (spec.glow() == null) return type;
+    private static RenderType glow(Pose pose, net.minecraft.world.entity.EntityType<?> type, boolean baby, RenderType renderType) {
+        int face = face(pose);
+        if (face == 0) return renderType;
+        Spec spec = spec(type, baby);
+        if (spec.glow() == null) return renderType;
         Identifier id = variants(GLOWS, spec.glow(), spec, Use.GLOW)[face];
-        return id != null ? RenderTypes.eyes(id) : type;
+        return id != null ? RenderTypes.eyes(id) : renderType;
     }
 
-    private static int face(LivingEntityRenderState state) {
-        Pose p = ((PoseHolder) state).mobreactions$pose();
+    private static int face(Pose p) {
         return p == null || p.face <= 0 || p.face >= NAMES.length ? 0 : p.face;
     }
 
-    private static Spec spec(LivingEntityRenderState state) {
-        String type = state.entityType == null ? "" : BuiltInRegistries.ENTITY_TYPE.getKey(state.entityType).toString();
-        String name = state.isBaby && BABY_TYPES.containsKey(type) ? BABY_TYPES.get(type) : TYPES.getOrDefault(type, "humanoid");
+    private static Spec spec(net.minecraft.world.entity.EntityType<?> entityType, boolean baby) {
+        String type = entityType == null ? "" : BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString();
+        String name = baby && BABY_TEXTURES && BABY_TYPES.containsKey(type) ? BABY_TYPES.get(type) : TYPES.getOrDefault(type, "humanoid");
         return SPECS.getOrDefault(name, SPECS.get("humanoid"));
     }
 
@@ -173,7 +212,7 @@ public final class Faces {
         try (InputStream in = res.get().open(); NativeImage src = NativeImage.read(in)) {
             int s = src.getWidth() / spec.uvWidth();
             if (s < 1 || src.getHeight() < 32 * s) return out;
-            int eye = src.getPixel(x(spec, spec.eyeSample()[0], s), y(spec, spec.eyeSample()[1], s));
+            int eye = px(src, x(spec, spec.eyeSample()[0], s), y(spec, spec.eyeSample()[1], s));
             // a glowing layer is see-through except for the eyes: erased eyes turn transparent, the ink is its own glow
             boolean holes = glow || (eye >>> 24) < 128;
             if (holes && !layer) {
@@ -204,15 +243,38 @@ public final class Faces {
      * Animations paints only a shallow socket there and draws the eyes as separate parts (hidden while an expression
      * shows, see compat.Emf), and ink that close to the skin would vanish, so it's darkened.
      */
+    //? if >=1.21.2 {
+    private static int px(NativeImage img, int x, int y) {
+        return img.getPixel(x, y);
+    }
+
+    private static void setPx(NativeImage img, int x, int y, int argb) {
+        img.setPixel(x, y, argb);
+    }
+    //?} else {
+    /*// before 1.21.2 the pixel calls are ...RGBA and the channels are stored ABGR
+    private static int swap(int c) {
+        return (c & 0xFF00FF00) | (c >> 16 & 0xFF) | (c & 0xFF) << 16;
+    }
+
+    private static int px(NativeImage img, int x, int y) {
+        return swap(img.getPixelRGBA(x, y));
+    }
+
+    private static void setPx(NativeImage img, int x, int y, int argb) {
+        img.setPixelRGBA(x, y, swap(argb));
+    }
+    *///?}
+
     private static int ink(NativeImage src, Spec spec, int s, int eye) {
         if (spec.inkSample() != null) {
             // Fresh Animations' villager-like textures have no brow (it's a part of its own), so the sample is skin there
-            int ink = src.getPixel(x(spec, spec.inkSample()[0], s), y(spec, spec.inkSample()[1], s));
+            int ink = px(src, x(spec, spec.inkSample()[0], s), y(spec, spec.inkSample()[1], s));
             int[] e = spec.erase()[0];
-            int under = e.length > 2 ? src.getPixel(x(spec, e[2], s), y(spec, e[3], s)) : src.getPixel(x(spec, e[0], s), y(spec, e[1] - 1, s));
+            int under = e.length > 2 ? px(src, x(spec, e[2], s), y(spec, e[3], s)) : px(src, x(spec, e[0], s), y(spec, e[1] - 1, s));
             return distance(ink, under) < 40 ? darken(ink, 0.35F) : ink;
         }
-        int skin = src.getPixel(x(spec, spec.eyeSample()[0], s), y(spec, spec.eyeSample()[1] - 1, s));
+        int skin = px(src, x(spec, spec.eyeSample()[0], s), y(spec, spec.eyeSample()[1] - 1, s));
         boolean socket = luma(eye) > 50 && luma(eye) < luma(skin);
         return socket || distance(eye, skin) < 40 ? darken(eye, 0.35F) : eye;
     }
@@ -223,12 +285,12 @@ public final class Faces {
      * there: then the layer's most common glowing colour, so the expression still glows on the face.
      */
     private static int glowInk(NativeImage src, Spec spec, int s) {
-        int ink = src.getPixel(x(spec, spec.inkSample()[0], s), y(spec, spec.inkSample()[1], s));
+        int ink = px(src, x(spec, spec.inkSample()[0], s), y(spec, spec.inkSample()[1], s));
         if ((ink >>> 24) >= 128) return ink;
         Map<Integer, Integer> count = new HashMap<>();
         for (int y = 0; y < src.getHeight(); y++) {
             for (int x = 0; x < src.getWidth(); x++) {
-                int c = src.getPixel(x, y);
+                int c = px(src, x, y);
                 if ((c >>> 24) >= 128) count.merge(c, 1, Integer::sum);
             }
         }
@@ -237,12 +299,12 @@ public final class Faces {
 
     /** Paints a face texel with the texel above it (or the one the entry names); a layer with eye holes gets a hole. */
     private static void erase(NativeImage img, NativeImage src, Spec spec, int[] e, int s, boolean holes) {
-        int from = holes ? 0 : e.length > 2 ? src.getPixel(x(spec, e[2], s), y(spec, e[3], s)) : src.getPixel(x(spec, e[0], s), y(spec, e[1] - 1, s));
+        int from = holes ? 0 : e.length > 2 ? px(src, x(spec, e[2], s), y(spec, e[3], s)) : px(src, x(spec, e[0], s), y(spec, e[1] - 1, s));
         fill(img, spec, e[0], e[1], s, from);
     }
 
     private static void fill(NativeImage img, Spec spec, int fx, int fy, int s, int argb) {
-        for (int dx = 0; dx < s; dx++) for (int dy = 0; dy < s; dy++) img.setPixel(x(spec, fx, s) + dx, y(spec, fy, s) + dy, argb);
+        for (int dx = 0; dx < s; dx++) for (int dy = 0; dy < s; dy++) setPx(img, x(spec, fx, s) + dx, y(spec, fy, s) + dy, argb);
     }
 
     private static int x(Spec spec, int fx, int s) {
