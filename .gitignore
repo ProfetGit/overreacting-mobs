@@ -31,3 +31,6 @@ dev/demo/world*/
 # local snapshots and session notes
 .work/
 dev/*-session.md
+release-art/
+dev/icon/frames60/
+dev/icon/banner_frames60/
